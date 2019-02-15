@@ -33,7 +33,7 @@
         android:layout_height="63dp"
         android:layout_marginBottom="10dp"
         android:gravity="top|center"
-        android:text="HOOK PLACE"
+        android:text="PLACE HOOK"
         android:textColor="@color/colorPrimary"
         android:textSize="50sp"
         app:layout_constraintBottom_toTopOf="@+id/pathview"

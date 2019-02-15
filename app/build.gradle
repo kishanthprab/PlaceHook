@@ -29,7 +29,28 @@ dependencies {
     //pathview
     implementation "com.eftimoff:android-pathview:1.0.8@aar"
 
-    //material components
+    //design android support
     implementation 'com.android.support:design:28.0.0'
 
+    //firebase core
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+
+    //firebase database
+    implementation 'com.google.firebase:firebase-database:16.0.1'
+
+    //firebase authentication
+    implementation 'com.google.firebase:firebase-auth:16.0.1'
+
+    //custom font dependency
+    implementation 'uk.co.chrisjenx:calligraphy:2.3.0'
+
+    //android support cardview layout
+    implementation 'com.android.support:cardview-v7:28.0.0'
+
+    //material text
+    implementation 'com.rengwuxian.materialedittext:library:2.1.4'
+
+    //alert (spot)dialog
+    implementation 'com.github.d-max:spots-dialog:1.1@aar'
 }
+apply plugin: 'com.google.gms.google-services'

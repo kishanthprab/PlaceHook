@@ -10,26 +10,33 @@ import android.widget.TextView;
 
 import com.eftimoff.androipathview.PathView;
 import com.eftimoff.androipathview.*;
-
+import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 public class SplashActivity extends AppCompatActivity {
 
-
+    FirebaseAuth FireAuth;
+    FirebaseAuth.AuthStateListener FireAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
+
+        FireAuth = FirebaseAuth.getInstance();
+        FireAuthStateListener = FireAuthUtil.SettingFirebaseAuthStateListener();
+
 
         TextView splashtxt = (TextView) findViewById(R.id.textView);
         splashtxt.setAlpha(0f);
         splashtxt.animate().alpha(1f).setDuration(3500).setStartDelay(1500);
 
 
-        ImageView splashimgView = (ImageView)findViewById(R.id.splashImgv);
+        ImageView splashimgView = (ImageView) findViewById(R.id.splashImgv);
         splashimgView.animate().alpha(0f).setDuration(2000).setStartDelay(1000);
 
 
@@ -47,15 +54,22 @@ public class SplashActivity extends AppCompatActivity {
         pathView.setFillAfter(true);
 
 
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (FireAuthUtil.getmUser() != null) {
+                    startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+                    finish();
 
-final Handler handler = new Handler();
-handler.postDelayed(new Runnable() {
-    @Override
-    public void run() {
-        Intent i = new Intent(SplashActivity.this,WelcomeActivity.class);
-        startActivity(i);
-    }
-},4500);
+                }else {
+
+
+                    Intent i = new Intent(getApplicationContext(), WelcomeActivity.class);
+                    startActivity(i);
+                }
+            }
+        }, 4500);
 
 
         // If token is null -> LoginActivity, else MainActivity
@@ -68,4 +82,27 @@ handler.postDelayed(new Runnable() {
 
 */
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FireAuth.addAuthStateListener(FireAuthStateListener);
+
+        FirebaseUser CurrentUser = FireAuthUtil.getmUser();
+        if (FireAuthUtil.getmUser() != null) {
+            startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+            //finish();
+
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (FireAuthStateListener != null) {
+            FireAuth.removeAuthStateListener(FireAuthStateListener);
+        }
+    }
+
 }
