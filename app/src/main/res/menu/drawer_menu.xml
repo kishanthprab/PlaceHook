@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+
+        <item android:id="@+id/nav_Discover"
+            android:icon="@drawable/ic_message"
+            android:title="Discover"></item>
+
+        <item android:id="@+id/nav_Nearby"
+            android:icon="@drawable/ic_message"
+            android:title="Nearby"></item>
+
+        <item android:id="@+id/nav_Navigation"
+            android:icon="@drawable/ic_message"
+            android:title="Navigation"></item>
+
+        <item android:id="@+id/nav_ARNavigation"
+            android:icon="@drawable/ic_message"
+            android:title="AR Navigation"></item>
+
+        <item android:id="@+id/nav_Favourites"
+            android:icon="@drawable/ic_message"
+            android:title="Favourites"></item>
+
+    </group>
+
+    <item android:title="">
+        <menu>
+            <item android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_message"
+                android:title="Settings">
+
+            </item>
+            <item android:id="@+id/nav_logout"
+                android:icon="@drawable/ic_message"
+                android:title="Log out">
+
+            </item>
+
+        </menu>
+
+    </item>
+
+</menu>

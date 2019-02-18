@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "76148334302",
+    "firebase_url": "https://placehook-b2100.firebaseio.com",
+    "project_id": "placehook-b2100",
+    "storage_bucket": "placehook-b2100.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76148334302:android:e91ea66cf90a5d68",
+        "android_client_info": {
+          "package_name": "com.example.kishanthprab.placehook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "76148334302-db1a7mmai0akmq1um15v354rll685obh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kishanthprab.placehook",
+            "certificate_hash": "b1dbf19a7f54701a80e50f69b61c405a43ea86ca"
+          }
+        },
+        {
+          "client_id": "76148334302-5sj3cbr9vs3k69bd0p3sidn5fihb35tj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqFFECPEofpDTQsshNUH1o6CfS-p8fgBs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "76148334302-5sj3cbr9vs3k69bd0p3sidn5fihb35tj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

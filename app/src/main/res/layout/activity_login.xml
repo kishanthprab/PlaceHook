@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/LoginRootLayout"
+    tools:context=".LoginActivity">
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:cardElevation="10dp"
+        >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_margin="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Login"
+                android:fontFamily="@font/opensans_regular"
+                android:layout_marginBottom="5dp"
+                android:textSize="24sp" />
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:src="@mipmap/project"
+                android:layout_margin="5dp"
+                android:layout_marginBottom="20dp"/>
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edt_loginEmail"
+                android:inputType="textEmailAddress"
+                android:hint="Email"
+                android:text=""
+                android:textColor="@color/colorPrimaryDark"
+                android:textColorHint="@color/colorPrimaryDark"
+                android:textSize="20sp"
+                android:layout_width="match_parent"
+                android:fontFamily="@font/opensans_regular"
+                android:layout_height="wrap_content"
+                app:met_singleLineEllipsis="true"
+                app:met_baseColor="@color/colorPrimaryDark"
+                />
+
+
+
+            <com.rengwuxian.materialedittext.MaterialEditText
+                android:id="@+id/edt_LoginPassword"
+                android:inputType="textPassword"
+                android:hint="Password"
+                android:text=""
+                android:textColor="@color/colorPrimaryDark"
+                android:textColorHint="@color/colorPrimaryDark"
+                android:textSize="20sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/opensans_regular"
+                app:met_singleLineEllipsis="true"
+                app:met_baseColor="@color/colorPrimaryDark"
+                />
+
+
+            <android.support.design.button.MaterialButton
+                android:id="@+id/btn_signin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:layout_gravity="center"
+                android:fontFamily="@font/opensans_regular"
+                android:layout_marginBottom="20dp"
+                android:textSize="18sp"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/colorPrimary"
+                android:id="@+id/txt_ForSignup"
+                android:textSize="16sp"
+                android:fontFamily="@font/opensans_regular"
+                android:layout_marginTop="5dp"
+                android:text="Don't have an account ? Sign up"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+
+</RelativeLayout>
