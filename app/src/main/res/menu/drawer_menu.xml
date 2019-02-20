@@ -25,15 +25,16 @@
             android:icon="@drawable/ic_message"
             android:title="Favourites"></item>
 
+        <item android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_message"
+            android:title="Settings">
+
+        </item>
     </group>
 
     <item android:title="">
         <menu>
-            <item android:id="@+id/nav_settings"
-                android:icon="@drawable/ic_message"
-                android:title="Settings">
 
-            </item>
             <item android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_message"
                 android:title="Log out">
