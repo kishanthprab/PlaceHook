@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -20,6 +21,7 @@ import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
 import com.example.kishanthprab.placehook.fragments.DiscoverFragment;
 import com.example.kishanthprab.placehook.fragments.MapsFragment;
+import com.example.kishanthprab.placehook.fragments.NearbyMapsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -120,6 +122,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
            case R.id.nav_Nearby:
                toolbar_title.setText("Nearby");
+               getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                       new NearbyMapsFragment()).commit();
                Toast.makeText(this, "Nearby", Toast.LENGTH_SHORT).show();
                break;
 
@@ -133,6 +137,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
            case R.id.nav_ARNavigation:
                toolbar_title.setText("AR Navigation");
+
+               getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new sampleMapActivity()).commit();
                Toast.makeText(this, "AR Navigation", Toast.LENGTH_SHORT).show();
                break;
 

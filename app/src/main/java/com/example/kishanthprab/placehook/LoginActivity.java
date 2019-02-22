@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -133,6 +134,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         }
 
+
                         // ...
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -140,6 +142,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(@NonNull Exception e) {
                 Log.d(TAG, "signInWithEmail:failure", e);
                 Snackbar.make(LoginRootLayout, "Failed " + e, Snackbar.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Failed " + e, Toast.LENGTH_LONG).show();
             }
         });
 
