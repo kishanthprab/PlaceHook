@@ -53,7 +53,7 @@ public class Photos {
     @Override
     public String toString()
     {
-        return "ClassPojo [photo_reference = "+photo_reference+", width = "+width+", html_attributions = "+html_attributions+", height = "+height+"]";
+        return "ClassMyplaces [photo_reference = "+photo_reference+", width = "+width+", html_attributions = "+html_attributions+", height = "+height+"]";
     }
 
 }

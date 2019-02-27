@@ -31,6 +31,13 @@
                 android:fontFamily="@font/opensans_regular"
                 android:layout_gravity="center"
                 android:id="@+id/toolbar_title" />
+            <ImageView
+                android:layout_gravity="right"
+                android:layout_width="40dp"
+                android:layout_marginRight="10dp"
+                android:layout_height="40dp"
+                android:id="@+id/img_filter"
+                android:src="@drawable/filtericon"/>
 
         </android.support.v7.widget.Toolbar>
         <FrameLayout

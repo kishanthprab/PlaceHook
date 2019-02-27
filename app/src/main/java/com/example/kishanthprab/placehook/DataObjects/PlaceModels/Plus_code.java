@@ -29,6 +29,6 @@ public class Plus_code {
     @Override
     public String toString()
     {
-        return "ClassPojo [compound_code = "+compound_code+", global_code = "+global_code+"]";
+        return "ClassMyplaces [compound_code = "+compound_code+", global_code = "+global_code+"]";
     }
 }

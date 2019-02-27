@@ -173,6 +173,6 @@ public class Results {
     @Override
     public String toString()
     {
-        return "ClassPojo [types = "+types+", icon = "+icon+", rating = "+rating+", photos = "+photos+", reference = "+reference+", user_ratings_total = "+user_ratings_total+", scope = "+scope+", name = "+name+", opening_hours = "+opening_hours+", geometry = "+geometry+", vicinity = "+vicinity+", id = "+id+", plus_code = "+plus_code+", place_id = "+place_id+"]";
+        return "ClassMyplaces [types = "+types+", icon = "+icon+", rating = "+rating+", photos = "+photos+", reference = "+reference+", user_ratings_total = "+user_ratings_total+", scope = "+scope+", name = "+name+", opening_hours = "+opening_hours+", geometry = "+geometry+", vicinity = "+vicinity+", id = "+id+", plus_code = "+plus_code+", place_id = "+place_id+"]";
     }
 }

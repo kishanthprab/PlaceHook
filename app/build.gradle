@@ -48,6 +48,9 @@ dependencies {
     //android support cardview layout
     implementation 'com.android.support:cardview-v7:28.0.0'
 
+    //android support recycler view
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+
     //material text
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
 

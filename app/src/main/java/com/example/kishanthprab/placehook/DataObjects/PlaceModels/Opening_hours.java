@@ -17,6 +17,6 @@ public class Opening_hours {
     @Override
     public String toString()
     {
-        return "ClassPojo [open_now = "+open_now+"]";
+        return "ClassMyplaces [open_now = "+open_now+"]";
     }
 }

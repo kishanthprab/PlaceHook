@@ -29,6 +29,6 @@ public class Viewport {
     @Override
     public String toString()
     {
-        return "ClassPojo [southwest = "+southwest+", northeast = "+northeast+"]";
+        return "ClassMyplaces [southwest = "+southwest+", northeast = "+northeast+"]";
     }
 }

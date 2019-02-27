@@ -29,6 +29,6 @@ public class Southwest {
     @Override
     public String toString()
     {
-        return "ClassPojo [lng = "+lng+", lat = "+lat+"]";
+        return "ClassMyplaces [lng = "+lng+", lat = "+lat+"]";
     }
 }

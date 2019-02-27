@@ -31,7 +31,7 @@ public class Geometry {
     @Override
     public String toString()
     {
-        return "ClassPojo [viewport = "+viewport+", location = "+location+"]";
+        return "ClassMyplaces [viewport = "+viewport+", location = "+location+"]";
     }
 
 }
