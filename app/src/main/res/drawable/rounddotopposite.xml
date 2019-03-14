@@ -6,9 +6,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <path
-        android:fillColor="#fff"
-        android:strokeWidth="0.5"
-        android:strokeColor="#2c3e50"
+        android:fillColor="#0984e3"
         android:pathData="M12,12m-8,0a8,8 0,1 1,16 0a8,8 0,1 1,-16 0">
 
 
