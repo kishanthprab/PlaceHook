@@ -1,8 +1,6 @@
-package com.example.kishanthprab.placehook;
+package com.example.kishanthprab.placehook.Recycler;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,12 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.kishanthprab.placehook.Utility.DownloadImageTask;
-import com.example.kishanthprab.placehook.Utility.Functions;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.example.kishanthprab.placehook.R;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.List;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
@@ -24,7 +19,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private List<RecyclerListItem> RecyclerListItem;
     private Context context;
 
-    public RecyclerAdapter(List<com.example.kishanthprab.placehook.RecyclerListItem> recyclerListItem, Context context) {
+    public RecyclerAdapter(List<com.example.kishanthprab.placehook.Recycler.RecyclerListItem> recyclerListItem, Context context) {
         RecyclerListItem = recyclerListItem;
         this.context = context;
     }

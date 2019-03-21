@@ -93,36 +93,26 @@
                 app:layout_constraintTop_toBottomOf="@+id/txtView">
 
 
-                <CheckBox
-                    android:id="@+id/checkBox1"
+                <RadioButton
+                    android:id="@+id/radiobtn_Restaurant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="18dp"
-                    android:layout_marginTop="16dp"
-                    android:textSize="18sp"
-                    android:text="Hospital"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    android:text="Restaurant"/>
 
-                <CheckBox
-                    android:id="@+id/checkBox2"
+                <RadioButton
+                    android:id="@+id/radiobtn_Hospital"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="16dp"
-                    android:textSize="18sp"
-                    android:text="Restaurant"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    android:text="Hospital"/>
 
-                <CheckBox
-                    android:id="@+id/checkBox3"
-                    android:layout_gravity=""
+                <RadioButton
+                    android:id="@+id/radiobtn_Cafe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="16dp"
-                    android:textSize="18sp"
-                    android:text="Cafe"
-                    app:layout_constraintStart_toStartOf="parent" />
+                    android:text="Cafe"/>
+
+
+
 
 
             </LinearLayout>
@@ -139,6 +129,12 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout1">
 
+
+                <RadioButton
+                    android:id="@+id/radiobtn_test"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cafe"/>
 
                 <CheckBox
                     android:id="@+id/checkBox1"

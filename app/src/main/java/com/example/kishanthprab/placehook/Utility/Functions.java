@@ -1,25 +1,14 @@
 package com.example.kishanthprab.placehook.Utility;
 
-import android.app.Application;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Photos;
-import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 import com.example.kishanthprab.placehook.LoginActivity;
 import com.example.kishanthprab.placehook.R;
-import com.example.kishanthprab.placehook.RecyclerListItem;
-import com.example.kishanthprab.placehook.SplashActivity;
-import com.example.kishanthprab.placehook.WelcomeActivity;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -27,15 +16,18 @@ import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 
 import dmax.dialog.SpotsDialog;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class Functions {
 
-    public static void spotDialog(){
+    private static Context context;
 
-        //AlertDialog waitingdialog = new SpotsDialog(LoginActivity.getContext());
+    public static AlertDialog spotsDialog(Context context){
+
+        AlertDialog alertDialog = new SpotsDialog.Builder()
+                .setContext(context)
+                .build();
+
+        return alertDialog;
 
     }
 
@@ -71,6 +63,7 @@ public class Functions {
             return null;
         }
     }
+
 
 
 

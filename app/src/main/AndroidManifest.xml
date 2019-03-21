@@ -31,8 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".WelcomeActivity"
-            android:noHistory="true" />
+            android:name=".WelcomeActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".DashboardActivity" />
@@ -44,9 +43,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity
-            android:name=".sampleMapActivity"
-            android:label="@string/title_activity_sample_map"></activity>
+
     </application>
 
 </manifest>

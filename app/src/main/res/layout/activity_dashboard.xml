@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#ffffff"
                 android:textSize="18sp"
-                android:fontFamily="@font/opensans_regular"
+                android:fontFamily="@font/opensansregular"
                 android:layout_gravity="center"
                 android:id="@+id/toolbar_title" />
             <ImageView
@@ -40,6 +40,7 @@
                 android:src="@drawable/filtericon"/>
 
         </android.support.v7.widget.Toolbar>
+
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"

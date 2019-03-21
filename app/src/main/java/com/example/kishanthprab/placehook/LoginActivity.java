@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AlertDialog;
+import android.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
+import com.example.kishanthprab.placehook.Utility.Functions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -38,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
 
     RelativeLayout LoginRootLayout;
 
+    AlertDialog alertDialog;
 
     FirebaseAuth FireAuth;
     FirebaseAuth.AuthStateListener FireAuthStateListener;
@@ -64,14 +66,19 @@ public class LoginActivity extends AppCompatActivity {
         txt_Forsignup = (TextView) findViewById(R.id.txt_ForSignup);
 
 
+        alertDialog = Functions.spotsDialog(LoginActivity.this);
+
         txt_Forsignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent i = new Intent(getApplicationContext(), RegisterActivity.class);
                 startActivity(i);
 
+
             }
         });
+
 
 
         btn_Signin.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +87,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 if (validateLogin()) {
+                    alertDialog.setTitle("Sign in");
+                    alertDialog.setMessage("Authenticating user..");
+                    // alertDialog.setIcon(R.drawable.ic_launcher_background);
+                    alertDialog.show();
 
                     SignInUser(edt_LoginEmail.getText().toString(), edt_LoginPassword.getText().toString());
 
@@ -123,13 +134,20 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = FireAuth.getCurrentUser();
-                            startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+
+                            alertDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_SHORT).show();
                             Snackbar.make(LoginRootLayout, "Login successful", Snackbar.LENGTH_SHORT).show();
+
+                            startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
+
                             //finish();
 
                         } else {
                             // If sign in fails, display a message to the user.
+                            alertDialog.dismiss();
                             Log.d(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
                             Snackbar.make(LoginRootLayout, "Failed " + task.getException(), Snackbar.LENGTH_SHORT).show();
 
                         }
@@ -140,6 +158,7 @@ public class LoginActivity extends AppCompatActivity {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                alertDialog.dismiss();
                 Log.d(TAG, "signInWithEmail:failure", e);
                 Snackbar.make(LoginRootLayout, "Failed " + e, Snackbar.LENGTH_SHORT).show();
                 Toast.makeText(getApplicationContext(), "Failed " + e, Toast.LENGTH_LONG).show();
@@ -155,6 +174,7 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseUser CurrentUser = FireAuthUtil.getmUser();
         //after this it should go to the
+
 
     }
 
@@ -172,4 +192,14 @@ public class LoginActivity extends AppCompatActivity {
         return getContext().getApplicationContext();
     }
 
+
+    public AlertDialog showDialog(){
+
+        AlertDialog alertDialog = new SpotsDialog.Builder()
+                .setContext(getApplicationContext())
+                .build();
+
+        return alertDialog;
+
+    }
 }

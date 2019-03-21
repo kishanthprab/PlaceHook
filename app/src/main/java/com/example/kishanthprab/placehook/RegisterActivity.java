@@ -1,5 +1,6 @@
 package com.example.kishanthprab.placehook;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 
 import com.example.kishanthprab.placehook.DataObjects.User;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
+import com.example.kishanthprab.placehook.Utility.Functions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
@@ -39,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     RelativeLayout RegrootLayout;
 
+    AlertDialog alertDialog;
 
     FirebaseAuth FireAuth;
     FirebaseAuth.AuthStateListener FireAuthStateListener;
@@ -67,11 +70,21 @@ public class RegisterActivity extends AppCompatActivity {
         txt_signin = (TextView) findViewById(R.id.txt_signin);
 
 
+        //alertdialog initiation
+        alertDialog = Functions.spotsDialog(RegisterActivity.this);
+
+
         btn_register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "clicked");
+
+
+
                 if (validateSignup()) {
+                    alertDialog.setTitle("PLACE HOOK");
+                    alertDialog.setMessage("Creating account...");
+                    alertDialog.show();
 
                     CreateUser();
 
@@ -157,14 +170,16 @@ public class RegisterActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Void aVoid) {
 
+                                alertDialog.dismiss();
                                 Snackbar.make(RegrootLayout, "Account created successfully", Snackbar.LENGTH_SHORT).show();
-
+                                startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
+                                alertDialog.dismiss();
 
-                                Snackbar.make(RegrootLayout, "Failed " + e, Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(RegrootLayout, "Creating account failed " + e, Snackbar.LENGTH_SHORT).show();
                             }
                         });
 
@@ -175,6 +190,7 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        alertDialog.dismiss();
                         Log.d(TAG, "sign up failed" + e);
                         Snackbar.make(RegrootLayout, "Failed " + e, Snackbar.LENGTH_SHORT).show();
                     }

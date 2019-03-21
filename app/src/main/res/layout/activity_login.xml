@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="Login"
-                android:fontFamily="@font/opensans_regular"
+                android:fontFamily="@font/opensansregular"
                 android:layout_marginBottom="5dp"
                 android:textSize="24sp" />
 
@@ -47,7 +47,7 @@
                 android:textColorHint="@color/colorPrimaryDark"
                 android:textSize="20sp"
                 android:layout_width="match_parent"
-                android:fontFamily="@font/opensans_regular"
+                android:fontFamily="@font/opensansregular"
                 android:layout_height="wrap_content"
                 app:met_singleLineEllipsis="true"
                 app:met_baseColor="@color/colorPrimaryDark"
@@ -65,7 +65,7 @@
                 android:textSize="20sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/opensans_regular"
+                android:fontFamily="@font/opensansregular"
                 app:met_singleLineEllipsis="true"
                 app:met_baseColor="@color/colorPrimaryDark"
                 />
@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:text="Login"
                 android:layout_gravity="center"
-                android:fontFamily="@font/opensans_regular"
+                android:fontFamily="@font/opensansregular"
                 android:layout_marginBottom="20dp"
                 android:textSize="18sp"/>
 
@@ -89,7 +89,7 @@
                 android:textColor="@color/colorPrimary"
                 android:id="@+id/txt_ForSignup"
                 android:textSize="16sp"
-                android:fontFamily="@font/opensans_regular"
+                android:fontFamily="@font/opensansregular"
                 android:layout_marginTop="5dp"
                 android:text="Don't have an account ? Sign up"/>
 
