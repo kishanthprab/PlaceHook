@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,15 +21,22 @@ public class SplashActivity extends AppCompatActivity {
     FirebaseAuth FireAuth;
     FirebaseAuth.AuthStateListener FireAuthStateListener;
 
+    private static final String TAG= "SplashActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
         //getSupportActionBar().hide();
+        try {
+            FireAuth = FirebaseAuth.getInstance();
+            FireAuthStateListener = FireAuthUtil.SettingFirebaseAuthStateListener();
+        }catch (Exception e){
+            Log.d(TAG, "onCreate: error "+ e.getMessage());
+        }
 
-        FireAuth = FirebaseAuth.getInstance();
-        FireAuthStateListener = FireAuthUtil.SettingFirebaseAuthStateListener();
+
 
 
         TextView splashtxt = (TextView) findViewById(R.id.textView);

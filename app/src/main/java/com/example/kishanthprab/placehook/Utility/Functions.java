@@ -9,7 +9,9 @@ import android.util.Log;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Photos;
 import com.example.kishanthprab.placehook.LoginActivity;
 import com.example.kishanthprab.placehook.R;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -21,7 +23,7 @@ public class Functions {
 
     private static Context context;
 
-    public static AlertDialog spotsDialog(Context context){
+    public static AlertDialog spotsDialog(Context context) {
 
         AlertDialog alertDialog = new SpotsDialog.Builder()
                 .setContext(context)
@@ -35,19 +37,18 @@ public class Functions {
     public static Bitmap getImageData(Photos p) {
         try {
 
-            String src= "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference="+
-                    p.getPhoto_reference()+
-                    "&key="+
+            String src = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=" +
+                    p.getPhoto_reference() +
+                    "&key=" +
                     R.string.google_maps_key;
             Log.d("srcsrc", src);
-
 
 
             URL url = new URL(src);
             HttpsURLConnection ucon = (HttpsURLConnection) url.openConnection();
             //ucon.setInstanceFollowRedirects(true);
             //URL secondURL = new URL(ucon.getHeaderField("Location"));
-           // HttpsURLConnection connection = (HttpsURLConnection) secondURL.openConnection();
+            // HttpsURLConnection connection = (HttpsURLConnection) secondURL.openConnection();
             //connection.setDoInput(true);
             //connection.connect();
             ucon.setDoInput(true);
@@ -55,9 +56,7 @@ public class Functions {
             InputStream input = ucon.getInputStream();
             Bitmap myBitmap = BitmapFactory.decodeStream(input);
             return myBitmap;
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Bitmap exception" + e);
             return null;
@@ -65,6 +64,24 @@ public class Functions {
     }
 
 
+    public static String toJSON(Object object) {
+
+
+        String jsonStr = "";
+        // Creating Object of ObjectMapper define in Jakson Api
+        ObjectMapper Obj = new ObjectMapper();
+
+        try {
+
+            // get Oraganisation object as a json string
+            jsonStr = Obj.writeValueAsString(object);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jsonStr;
+
+    }
 
 
 }

@@ -1,9 +1,14 @@
 package com.example.kishanthprab.placehook.fragments;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,19 +17,28 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.Geocoded_waypoints;
+import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.MyPlaceDirection;
+import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Geometry;
+import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Result;
+import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.Routes;
+import com.example.kishanthprab.placehook.Helper.DirectionsJSONParser;
 import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
+import com.example.kishanthprab.placehook.Utility.Functions;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -39,28 +53,63 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+
 //import com.google.android.gms.location.LocationListener;
 
 public class NavigationMapsFragment extends Fragment implements OnMapReadyCallback {
 
     GoogleMap mMap;
     Marker userCurrentLocation;
+    Marker DestinationMarker = null;
 
     Location LastLocation = null;
 
+    Address destAddress = null;
+    String destAddressName;
+
     private static final int Request_user_Location_code = 2;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1123;
+
     final static String TAG = "NavigationFragment";
 
     Toolbar toolbar_nearbyPlaces;
     TextView toolbar_title;
     ImageView img_filter;
 
-    
+    TextView navigation_searchCurrent;
+    TextView navigation_searchDestination;
+
+
     GoogleAPIService mService;
+    GoogleAPIService mService_Gson;
 
     FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
+
+    Polyline polyline;
 
 
     @Nullable
@@ -69,6 +118,16 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         View view = inflater.inflate(R.layout.fragment_navigation_maps, container, false);
 
+
+        //init google services
+        mService = CommonGoogle.getGoogleAPIServiceScalars();
+        mService_Gson = CommonGoogle.getGoogleAPIService();
+
+        // Initialize Places.
+        Places.initialize(getActivity(), getActivity().getResources().getString(R.string.google_maps_key));
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(getActivity());
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.navigationMap);
@@ -89,6 +148,13 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         fusedLocationClient = new FusedLocationProviderClient(getActivity());
 
+        //initializing searchText
+        navigation_searchCurrent = (TextView) view.findViewById(R.id.edt_Csearch);
+
+
+        //current locaton search text
+        CLocationsearchText();
+
         //check permission runtime
         if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
 
@@ -98,6 +164,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
             //if permission granted
             buildLocationRequest();
             buildLocationCallBack();
+
 
             //start fused location
 
@@ -114,9 +181,370 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         }
 
+       /*
+
+        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
+        // and once again when the user makes a selection (for example when calling fetchPlace()).
+        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+          */
+
 
     }
 
+    private void CLocationsearchText() {
+
+
+        navigation_searchCurrent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "current text clicked", Toast.LENGTH_SHORT).show();
+
+                // Set the fields to specify which types of place data to
+                // return after the user has made a selection.
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME,
+                        Place.Field.LAT_LNG, Place.Field.VIEWPORT, Place.Field.ADDRESS,
+                        Place.Field.TYPES, Place.Field.PHONE_NUMBER);
+
+                // Start the autocomplete intent.
+                Intent intent = new Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.FULLSCREEN, fields)
+                        .setLocationBias(RectangularBounds.newInstance(new LatLng(6.859629, 79.816731), new LatLng(6.984130, 79.888132)))
+                        // .setTypeFilter(TypeFilter.ADDRESS)
+                        .setCountry("LK")
+                        .build(getActivity());
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+
+            }
+        });
+
+
+        navigation_searchCurrent.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || event.getAction() == KeyEvent.ACTION_DOWN
+                        || event.getAction() == KeyEvent.KEYCODE_ENTER) {
+
+                    //execute method for searching
+                    //geolocatePlace();
+                    Log.d(TAG, "onEditorAction: Clicked");
+                }
+                return false;
+            }
+        });
+
+    }
+
+    private void geolocatePlace(LatLng latLng) {
+        Log.d(TAG, "geolocatePlace: geolocation");
+
+        //String searchString = navigation_searchCurrent.getText().toString();
+
+        Geocoder geocoder = new Geocoder(getActivity());
+        List<Address> ListAddresses = new ArrayList<>();
+        try {
+
+            //  ListAddresses = geocoder.getFromLocationName(searchString, 1);
+            ListAddresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+
+
+        } catch (Exception e) {
+
+            Log.d(TAG, "geolocatePlace: Exception" + e.getMessage());
+
+        }
+
+        if (ListAddresses.size() > 0) {
+
+            destAddress = ListAddresses.get(0);
+            String t = destAddress.getAddressLine(0);
+            //navigation_searchCurrent.setText(t);
+            setDestination();
+            Toast.makeText(getActivity(), "address : " + destAddress.toString(), Toast.LENGTH_SHORT).show();
+
+            Log.d(TAG, "geolocatePlace: Found location : " + destAddress.toString());
+        }
+
+
+    }
+
+
+    //setDestination
+    private void setDestination() {
+
+        if (DestinationMarker != null) {
+
+            DestinationMarker.remove();
+        }
+
+        //LatLng destinationLatlng = new LatLng(destAddress.getLatitude(), destAddress.getLongitude());
+
+        LatLng destinationLatlng = new LatLng(
+                Double.parseDouble(CommonGoogle.currentResult.getGeometry().getLocation().getLat()),
+                Double.parseDouble(CommonGoogle.currentResult.getGeometry().getLocation().getLng())
+        );
+
+        DestinationMarker = mMap.addMarker(new MarkerOptions()
+                .position(destinationLatlng)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.destination))
+                .title(CommonGoogle.currentResult.getName()));
+
+
+        //route path
+        DrawPath(LastLocation, destinationLatlng); //uses scalars
+        // DrawPathGson(LastLocation, destinationLatlng);
+
+    }
+
+    private void DrawPathGson(Location lastLocation, LatLng destinationLocation) {
+
+        if (polyline != null) {
+            polyline.remove();
+        }
+
+        String url = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?")
+                .append("origin=")
+                .append(String.valueOf(lastLocation.getLatitude()))
+                .append(",")
+                .append(String.valueOf(lastLocation.getLongitude()))
+                .append("&destination=")
+                .append(String.valueOf(destinationLocation.latitude))
+                .append(",")
+                .append(String.valueOf(destinationLocation.longitude))
+                .append("&key=" + getResources().getString(R.string.google_maps_key))
+                .toString();
+
+        mService_Gson.getDirections(url)
+                .enqueue(new Callback<MyPlaceDirection>() {
+                    @Override
+                    public void onResponse(Call<MyPlaceDirection> call, Response<MyPlaceDirection> response) {
+                        if (response.isSuccessful()) {
+
+                            Log.d(TAG, "onResponse: " + " direction :successfull");
+
+
+                            for (int i = 0; i < response.body().getRoutes().length; i++) {
+
+                                /*
+                                for (int j=0;j<response.body().getGeocoded_waypoints().length;j++){
+
+                                    Geocoded_waypoints waypoints = response.body().getGeocoded_waypoints();
+                                }*/
+
+                                Routes routes = response.body().getRoutes()[i];
+
+                            }
+
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<MyPlaceDirection> call, Throwable t) {
+                        Log.d(TAG, "onFailure: " + " direction : failure");
+                    }
+                });
+
+    }
+
+
+    //draw path to destination
+    private void DrawPath(Location lastLocation,
+                          LatLng destinationLocation) {
+        if (polyline != null) {
+            polyline.remove();
+        }
+
+        String origin = new StringBuilder(String.valueOf(lastLocation.getLatitude()))
+                .append(",")
+                .append(String.valueOf(lastLocation.getLongitude()))
+                .toString();
+        String destination = new StringBuilder(String.valueOf(destinationLocation.latitude))
+                .append(",")
+                .append(String.valueOf(destinationLocation.longitude))
+                .toString();
+
+        mService.getDirections(origin, destination, getActivity().getResources().getString(R.string.google_maps_key))
+                .enqueue(new Callback<MyPlaceDirection>() {
+                    @Override
+                    public void onResponse(Call<MyPlaceDirection> call, Response<MyPlaceDirection> response) {
+
+                        //Log.d(TAG, "onResponse: "+ response.body());
+
+                        if (response.isSuccessful()) {
+
+                            Log.d(TAG, "onResponse: " + response.body().toString());
+                            Log.d(TAG, "onResponse: " + " scalr response success");
+
+
+                            MyPlaceDirection PlaceDirection = response.body();
+
+                            String jsonString = Functions.toJSON(PlaceDirection);
+
+                            Log.d(TAG, "onResponse: "+jsonString);
+
+                             new ParserTask().execute(jsonString);
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<MyPlaceDirection> call, Throwable t) {
+                        Log.d(TAG, "onFailure: " + "failed" + t.getMessage());
+                    }
+                });
+    }
+
+
+    //inner class to parse data
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+
+        AlertDialog alertDialog = Functions.spotsDialog(getActivity());
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            alertDialog.setMessage("Loading Please wait...");
+            alertDialog.show();
+        }
+
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... strings) {
+            JSONObject jsonObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try {
+                //get json from results
+
+                jsonObject = new JSONObject(strings[0]);
+                //parse json
+                DirectionsJSONParser directionsJSONParser = new DirectionsJSONParser();
+                routes = directionsJSONParser.parse(jsonObject);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            return routes;
+        }
+
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> lists) {
+            super.onPostExecute(lists);
+
+            ArrayList<LatLng> points = null;
+            PolylineOptions polylineOptions = null;
+
+            for (int i = 0; i < lists.size(); i++) {
+
+                points = new ArrayList<LatLng>();
+                polylineOptions = new PolylineOptions();
+
+                List<HashMap<String, String>> path = lists.get(i);
+
+                for (int j = 0; j < path.size(); j++) {
+
+                    HashMap<String, String> point = path.get(j);
+
+                    double lat = Double.parseDouble(point.get("lat"));
+                    double lng = Double.parseDouble(point.get("lng"));
+
+                    LatLng position = new LatLng(lat, lng);
+
+                    Log.d(TAG, "onPostExecute: " + position.toString());
+                    points.add(position);
+
+                }
+
+
+                polylineOptions.addAll(points);
+
+                polylineOptions.width(15);
+                polylineOptions.color(getActivity().getResources().getColor(R.color.colorAccent));
+                polylineOptions.geodesic(true);
+
+
+            }
+            polyline = mMap.addPolyline(polylineOptions);
+            alertDialog.dismiss();
+
+        }
+    }
+
+    /*//place details get call
+    private void getPlaceDetails(String placeID) {
+
+        StringBuilder googlePlacesURL = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+
+        googlePlacesURL.append("placeid=" + placeID);
+        googlePlacesURL.append("&fields=");
+        googlePlacesURL.append("address_component,");
+        googlePlacesURL.append("formatted_address,");
+        googlePlacesURL.append("");
+        googlePlacesURL.append("");
+        googlePlacesURL.append("&key=" + getResources().getString(R.string.google_maps_key));
+
+            String url = getURL(LastLocation.getLatitude(), LastLocation.getLongitude(), placeType);
+            googleNearbyService.getNearbyPlaces(url)
+                    .enqueue(new Callback<MyPlaces>() {
+                        @Override
+                        public void onResponse(Call<MyPlaces> call, Response<MyPlaces> response) {
+                            if (response.isSuccessful()) {
+
+
+                                Log.d("response", "susscessfull");
+
+                                for (int i = 0; i < response.body().getResults().length; i++) {
+
+                                    Results googlePlace = response.body().getResults()[i];
+                                    Location placeLocation = googlePlace.getGeometry().getLocation();
+
+                                    String Vicinity = googlePlace.getVicinity();
+                                    LatLng Place_latLng = new LatLng(placeLocation.getLatitude(), placeLocation.getLongitude());
+
+                                    String placID = googlePlace.getPlace_id();
+                                    String PlaceName = googlePlace.getName();
+                                    double rating = Double.parseDouble(googlePlace.getRating());
+
+
+                                    RecyclerListItem listItem = new RecyclerListItem(
+                                            PlaceName,
+                                            rating,
+                                            1.4
+                                    );
+
+                                    listItem.setPlacePhotos(googlePlace.getPhotos());
+
+
+                                    feedList.add(listItem);
+                                    //Log.d("response", "value added " + PlaceName);
+
+                                }
+                                alertDialog.dismiss();
+
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<MyPlaces> call, Throwable t) {
+                            Log.d("responseFail", t.getStackTrace().toString());
+                        }
+                    });
+
+    }*/
+
+
+//----------
+
+
+    //stop location updates
     public void stopLocationUpdates() {
 
         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -142,6 +570,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
                 for (Location location : locationResult.getLocations()) {
 
+
                     if (LastLocation != null) {
 
                         userCurrentLocation.remove();
@@ -149,7 +578,10 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
                     LastLocation = location;
                     final LatLng userloc = new LatLng(LastLocation.getLatitude(), LastLocation.getLongitude());
-                    userCurrentLocation = mMap.addMarker(new MarkerOptions().position(userloc).title("You are here!").icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
+                    userCurrentLocation = mMap.addMarker(new MarkerOptions()
+                            .position(userloc)
+                            .title("You are here!")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
 
                     // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userloc,21));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userloc, 17));
@@ -208,19 +640,54 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         }
 
-        /*
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(new LatLng(23,12));
-        markerOptions.title("Current location");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.user));
-
-        mMap.addMarker(markerOptions);
-        */
-
-
 
     }
 
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == AutocompleteActivity.RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+
+                navigation_searchCurrent.setText("");
+                //geolocate
+                //geolocatePlace(place.getLatLng());
+
+
+                String DestinationAddress = place.getName() + ", " + place.getAddress();
+                //destAddressName = place.getName();
+
+                CommonGoogle.currentResult = new Result();
+                //setCurrent Result
+                CommonGoogle.currentResult.setPlace_id(place.getId());
+                CommonGoogle.currentResult.setName(place.getName());
+                CommonGoogle.currentResult.setFormatted_address(place.getAddress());
+                CommonGoogle.currentResult.setGeometry(new Geometry());
+                CommonGoogle.currentResult.getGeometry().setLocation(new com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Location());
+                CommonGoogle.currentResult.getGeometry().getLocation().setLat(String.valueOf(place.getLatLng().latitude));
+                CommonGoogle.currentResult.getGeometry().getLocation().setLng(String.valueOf(place.getLatLng().longitude));
+
+                setDestination();
+                navigation_searchCurrent.setText(DestinationAddress);
+
+
+                // Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + ", " + place.getAddress() + ", " + place.getLatLng());
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, "Place: " + "result error");
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
+                // The user canceled the operation.
+                Log.i(TAG, "Place: " + "result cancelled");
+            }
+        }
+
+        //super.onActivityResult(requestCode, resultCode, data);
+
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

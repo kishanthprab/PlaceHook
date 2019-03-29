@@ -4,11 +4,51 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.NavigationMapsFragment" >
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="30dp"
+        android:background="@color/gray"
+        android:elevation="10dp"
+        android:padding="5dp">
+
+        <LinearLayout
+            android:id="@+id/linear1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginRight="5dp"
+                android:src="@drawable/ic_search_black_24dp" />
+
+            <TextView
+                android:layout_width="400dp"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="enter location"
+                android:id="@+id/edt_Csearch"
+                android:singleLine="true"
+
+                />
+
+
+        </LinearLayout>
+
+
+
+
+
+    </LinearLayout>
 
 
     <fragment
@@ -16,8 +56,8 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.NavigationMapsFragment" >
-
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true">
 
     </fragment>
 
