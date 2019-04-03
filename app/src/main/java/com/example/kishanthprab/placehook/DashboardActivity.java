@@ -28,6 +28,7 @@ import com.example.kishanthprab.placehook.Utility.FilterDialog;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
 import com.example.kishanthprab.placehook.fragments.DiscoverFragment;
+import com.example.kishanthprab.placehook.fragments.ItineraryPlannerFragment;
 import com.example.kishanthprab.placehook.fragments.MapsFragment;
 import com.example.kishanthprab.placehook.fragments.NavigationMapsFragment;
 import com.example.kishanthprab.placehook.fragments.NearbyMapsFragment;
@@ -133,6 +134,15 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 Toast.makeText(this, "Discover", Toast.LENGTH_SHORT).show();
                 break;
 
+            case R.id.nav_Itinerary:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new ItineraryPlannerFragment()).commit();
+
+                toolbar_title.setText("Itinerary Planner");
+                img_filter.setVisibility(View.INVISIBLE);
+                Toast.makeText(this, "Itinerary Planner", Toast.LENGTH_SHORT).show();
+                break;
+
             case R.id.nav_Nearby:
                 toolbar_title.setText("Nearby");
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -236,7 +246,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                     public void onActionClick(String name) {
 
                         SharedPreferences sp = getApplicationContext().getSharedPreferences("com.example.kishanthprab.placehook", Context.MODE_PRIVATE);
-                        String key = sp.getString("key","123");
+                        String key = sp.getString("key", "123");
 
 
                         //Toast.makeText(getApplicationContext(), name, Toast.LENGTH_SHORT).show();
@@ -252,9 +262,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         }
 
     }
-
-
-
 
 
 }

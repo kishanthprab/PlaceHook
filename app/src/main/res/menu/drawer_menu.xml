@@ -9,6 +9,10 @@
             android:icon="@drawable/ic_message"
             android:title="Discover"></item>
 
+        <item android:id="@+id/nav_Itinerary"
+            android:icon="@drawable/ic_message"
+            android:title="Itinerary Planner"></item>
+
         <item android:id="@+id/nav_Nearby"
             android:icon="@drawable/ic_message"
             android:title="Nearby"></item>

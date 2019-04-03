@@ -1,6 +1,7 @@
 package com.example.kishanthprab.placehook.Recycler;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kishanthprab.placehook.R;
+import com.example.kishanthprab.placehook.Utility.Functions;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -49,10 +52,8 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 "&key=" +
                 R.string.google_maps_key;
 
-        //Bitmap bm = Functions.getImageData(listItem.getPlacePhotos()[0]);
 
-
-        
+        //sample url = "https://wallpaper-gallery.net/images/image/image-13.jpg"
         Picasso.get()
                 .load("https://wallpaper-gallery.net/images/image/image-13.jpg")
                 .into(viewHolder.imgView);

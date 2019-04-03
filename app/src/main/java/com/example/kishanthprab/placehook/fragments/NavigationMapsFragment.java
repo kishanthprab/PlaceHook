@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -286,12 +287,25 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                 Double.parseDouble(CommonGoogle.currentResult.getGeometry().getLocation().getLng())
         );
 
-        DestinationMarker = mMap.addMarker(new MarkerOptions()
-                .position(destinationLatlng)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.destination))
-                .title(CommonGoogle.currentResult.getName()));
 
+        Bitmap bitmap= null;
+        try {
+            bitmap = Functions.getBitmapFromURL("https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=2|222F3E|FFFFFF");
 
+        } catch (Exception e) {
+
+            Log.d(TAG, "setDestination: bitmap" + "failed" + e);
+        }
+
+        if (bitmap!=null) {
+
+            DestinationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(destinationLatlng)
+                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.destination))
+                    .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap,bitmap.getWidth()*4,bitmap.getHeight()*4,false)))
+                    .title(CommonGoogle.currentResult.getName()));
+
+        }
         //route path
         DrawPath(LastLocation, destinationLatlng); //uses scalars
         // DrawPathGson(LastLocation, destinationLatlng);
@@ -384,9 +398,9 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
                             String jsonString = Functions.toJSON(PlaceDirection);
 
-                            Log.d(TAG, "onResponse: "+jsonString);
+                            Log.d(TAG, "onResponse: " + jsonString);
 
-                             new ParserTask().execute(jsonString);
+                            new ParserTask().execute(jsonString);
                         }
 
 

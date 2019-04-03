@@ -34,7 +34,6 @@ import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
-import com.google.android.gms.flags.IFlagProvider;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
