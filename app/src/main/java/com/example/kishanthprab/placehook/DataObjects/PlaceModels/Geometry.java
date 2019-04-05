@@ -1,6 +1,5 @@
 package com.example.kishanthprab.placehook.DataObjects.PlaceModels;
 
-import android.location.Location;
 
 public class Geometry {
 

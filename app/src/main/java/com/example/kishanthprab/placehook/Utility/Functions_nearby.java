@@ -42,10 +42,13 @@ public class Functions_nearby {
                             for (int i = 0; i < response.body().getResults().length; i++) {
 
                                 Results googlePlace = response.body().getResults()[i];
-                                Location placeLocation = googlePlace.getGeometry().getLocation();
+                                LatLng placeLocation = new LatLng(
+                                        Double.parseDouble(googlePlace.getGeometry().getLocation().getLat()),
+                                        Double.parseDouble(googlePlace.getGeometry().getLocation().getLng())
+                                );
 
                                 String Vicinity = googlePlace.getVicinity();
-                                LatLng Place_latLng = new LatLng(placeLocation.getLatitude(), placeLocation.getLongitude());
+                                LatLng Place_latLng = new LatLng(placeLocation.latitude, placeLocation.longitude);
 
                                 String placID = googlePlace.getPlace_id();
                                 String PlaceName = googlePlace.getName();

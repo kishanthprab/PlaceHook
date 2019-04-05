@@ -1,6 +1,7 @@
 package com.example.kishanthprab.placehook.Remote;
 
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Result;
+import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 
 public class CommonGoogle {
@@ -9,6 +10,7 @@ public class CommonGoogle {
 
     public static Results currentResults;
     public static Result currentResult;
+
 
     public static GoogleAPIService getGoogleAPIService() {
 

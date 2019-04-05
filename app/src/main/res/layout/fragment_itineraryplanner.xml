@@ -5,6 +5,7 @@
     android:layout_centerHorizontal="true"
     android:background="@color/gray"
     android:paddingLeft="5dp"
+    android:id="@+id/ItineraryHome_root"
     android:paddingTop="5dp"
     android:paddingRight="5dp"
     android:paddingBottom="5dp">
@@ -31,67 +32,8 @@
                     android:layout_width="156dp"
                     android:layout_height="40dp"
                     android:singleLine="true"
-                    android:text="Start of the trip :"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/txt_ip_from"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:hint="click to add location"
-                    android:singleLine="true"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="15sp"
-
-                    />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:layout_width="156dp"
-                    android:layout_height="40dp"
-                    android:singleLine="true"
-                    android:text="End of the trip :"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="15sp" />
-
-                <TextView
-                    android:id="@+id/txt_ip_to"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:hint="click to add location"
-                    android:singleLine="true"
-                    android:textAlignment="center"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textSize="15sp"
-
-                    />
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView
-                    android:layout_width="156dp"
-                    android:layout_height="40dp"
-                    android:singleLine="true"
                     android:text="What kind of places?"
-                    android:textAlignment="center"
+                    android:gravity="start"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="15sp"
 
@@ -102,9 +44,39 @@
                     android:id="@+id/spinner_ip_placeType"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:autofillHints="click to choose"></Spinner>
+                    android:autofillHints="click to choose"
+                    android:textAlignment="center"></Spinner>
 
             </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="156dp"
+                    android:layout_height="40dp"
+                    android:singleLine="true"
+                    android:text="Trip Location :"
+                    android:gravity="start"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/txt_ip_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:hint="click to add location"
+                    android:singleLine="true"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="15sp"
+                    />
+            </LinearLayout>
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -114,24 +86,27 @@
 
 
                 <TextView
+
                     android:layout_width="156dp"
                     android:layout_height="40dp"
-                    android:padding="5dp"
                     android:singleLine="true"
-                    android:text="Trip duration"
-                    android:textAlignment="center"
+                    android:text="No of Places"
+                    android:gravity="start"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="15sp"
 
                     />
 
                 <Spinner
-                    android:id="@+id/spinner_ip_duration"
+                    android:id="@+id/spinner_ip_NoOfPlaces"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"></Spinner>
+                    android:layout_height="40dp"
+                    android:textAlignment="center"></Spinner>
 
 
             </LinearLayout>
+
+
 
             <LinearLayout
                 android:layout_width="match_parent"

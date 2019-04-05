@@ -22,6 +22,10 @@ public interface GoogleAPIService {
     @GET("maps/api/directions/json")
     Call<MyPlaceDirection> getDirections(@Query("origin")String origin, @Query("destination")String destination, @Query("key")String key);
 
+    //search places for itinerary
+    @GET
+    Call<MyPlaces> getItineraryPlaces(@Url String url);
+
     @GET
     Call<MyPlaceDirection> getDirections(@Url String url);
 }
