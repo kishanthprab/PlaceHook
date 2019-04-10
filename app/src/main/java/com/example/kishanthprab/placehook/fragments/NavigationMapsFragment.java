@@ -39,6 +39,7 @@ import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
 import com.example.kishanthprab.placehook.Utility.Functions;
+import com.example.kishanthprab.placehook.Utility.ParserPolylineTask;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -104,7 +105,6 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
 
     GoogleAPIService mService;
-    GoogleAPIService mService_Gson;
 
     FusedLocationProviderClient fusedLocationClient;
     private LocationRequest locationRequest;
@@ -121,8 +121,8 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
 
         //init google services
-        mService = CommonGoogle.getGoogleAPIServiceScalars();
-        mService_Gson = CommonGoogle.getGoogleAPIService();
+        mService = CommonGoogle.getGoogleAPIService();
+        //mService = CommonGoogle.getGoogleAPIServiceScalars();
 
         // Initialize Places.
         Places.initialize(getActivity(), getActivity().getResources().getString(R.string.google_maps_key));
@@ -142,10 +142,6 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-        //initialize services
-        mService = CommonGoogle.getGoogleAPIService();
 
         fusedLocationClient = new FusedLocationProviderClient(getActivity());
 
@@ -308,59 +304,6 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
         }
         //route path
         DrawPath(LastLocation, destinationLatlng); //uses scalars
-        // DrawPathGson(LastLocation, destinationLatlng);
-
-    }
-
-    private void DrawPathGson(Location lastLocation, LatLng destinationLocation) {
-
-        if (polyline != null) {
-            polyline.remove();
-        }
-
-        String url = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?")
-                .append("origin=")
-                .append(String.valueOf(lastLocation.getLatitude()))
-                .append(",")
-                .append(String.valueOf(lastLocation.getLongitude()))
-                .append("&destination=")
-                .append(String.valueOf(destinationLocation.latitude))
-                .append(",")
-                .append(String.valueOf(destinationLocation.longitude))
-                .append("&key=" + getResources().getString(R.string.google_maps_key))
-                .toString();
-
-        mService_Gson.getDirections(url)
-                .enqueue(new Callback<MyPlaceDirection>() {
-                    @Override
-                    public void onResponse(Call<MyPlaceDirection> call, Response<MyPlaceDirection> response) {
-                        if (response.isSuccessful()) {
-
-                            Log.d(TAG, "onResponse: " + " direction :successfull");
-
-
-                            for (int i = 0; i < response.body().getRoutes().length; i++) {
-
-                                /*
-                                for (int j=0;j<response.body().getGeocoded_waypoints().length;j++){
-
-                                    Geocoded_waypoints waypoints = response.body().getGeocoded_waypoints();
-                                }*/
-
-                                Routes routes = response.body().getRoutes()[i];
-
-                            }
-
-                        }
-
-
-                    }
-
-                    @Override
-                    public void onFailure(Call<MyPlaceDirection> call, Throwable t) {
-                        Log.d(TAG, "onFailure: " + " direction : failure");
-                    }
-                });
 
     }
 
@@ -401,6 +344,9 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                             Log.d(TAG, "onResponse: " + jsonString);
 
                             new ParserTask().execute(jsonString);
+                            //ParserPolylineTask pTask = new ParserPolylineTask();
+                            //pTask.execute(mMap,polyline,jsonString);
+
                         }
 
 
@@ -599,19 +545,6 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
                     // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userloc,21));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userloc, 17));
-
-                    final Handler handler = new Handler();
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-
-                            //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userloc, 21));
-
-                            handler.postDelayed(this, 5000);
-                        }
-                    };
-                    handler.post(runnable);
-
 
                     Log.i("LocVaues", "lat " + location.getLatitude() + " longitude" + location.getLongitude());
                 }

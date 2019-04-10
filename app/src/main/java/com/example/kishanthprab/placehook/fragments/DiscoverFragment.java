@@ -2,6 +2,8 @@ package com.example.kishanthprab.placehook.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +24,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.HttpResponse;
+import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Photos;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 import com.example.kishanthprab.placehook.R;
@@ -28,21 +33,26 @@ import com.example.kishanthprab.placehook.Recycler.RecyclerAdapter;
 import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
+import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_nearby;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dmax.dialog.SpotsDialog;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -55,6 +65,7 @@ public class DiscoverFragment extends Fragment {
     private List<RecyclerListItem> feedList;
 
     GoogleAPIService googleNearbyService;
+    PlacesClient placesClient;
 
 
     //for location
@@ -94,10 +105,8 @@ public class DiscoverFragment extends Fragment {
         recyclerView.setAdapter(recyclerAdapter);
 
 
-
         //gets details for the feed
         //nearbyPlace("point_of_interest");
-
 
 
         final Handler handler = new Handler();
@@ -110,7 +119,6 @@ public class DiscoverFragment extends Fragment {
             }
         };
         handler.post(runnable);
-
 
 
         //location
@@ -142,7 +150,6 @@ public class DiscoverFragment extends Fragment {
         }
 
 
-
     }
 
     private void buildLocationCallBack() {
@@ -154,7 +161,7 @@ public class DiscoverFragment extends Fragment {
 
                 for (Location location : locationResult.getLocations()) {
 
-                    if (LastLocation==null) {
+                    if (LastLocation == null) {
                         LastLocation = location;
                         nearbyPlace("point_of_interest");
 
@@ -227,7 +234,7 @@ public class DiscoverFragment extends Fragment {
 
     }
 
-    public AlertDialog showDialog(){
+    public AlertDialog showDialog() {
 
         AlertDialog alertDialog = new SpotsDialog.Builder()
                 .setContext(getActivity())
@@ -236,7 +243,6 @@ public class DiscoverFragment extends Fragment {
         return alertDialog;
 
     }
-
 
 
     //nearby place get call
@@ -248,9 +254,7 @@ public class DiscoverFragment extends Fragment {
         alertDialog.show();
 
 
-
-
-        if (LastLocation!=null){
+        if (LastLocation != null) {
 
             String url = getURL(LastLocation.getLatitude(), LastLocation.getLongitude(), placeType);
             googleNearbyService.getNearbyPlaces(url)
@@ -284,11 +288,18 @@ public class DiscoverFragment extends Fragment {
                                             1.4
                                     );
 
+                                    //photoresult
+
+                                    getPhoto(googlePlace,listItem);
+
+
                                     listItem.setPlacePhotos(googlePlace.getPhotos());
 
 
                                     feedList.add(listItem);
                                     //Log.d("response", "value added " + PlaceName);
+
+
 
                                 }
                                 alertDialog.dismiss();
@@ -306,6 +317,27 @@ public class DiscoverFragment extends Fragment {
         }
 
     }
+
+private void getPhoto(Results googleplace,RecyclerListItem listItem){
+
+    Bitmap bitmap = null;
+    try {
+        //  bitmap = Functions.getBitmapFromRedirectedURL("https://lh4.googleusercontent.com/-1wzlVdxiW14/USSFZnhNqxI/AAAAAAAABGw/YpdANqaoGh4/s1600-w400/Google%2BSydney");
+        bitmap = Functions
+                .getBitmapFromRedirectedURL("https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference="
+                        +googleplace.getPhotos()[0].getPhoto_reference()+
+                        "&key=AIzaSyDDupZgfGCyDu6EBN1suSvisv0Z_3iC9ms");
+        Log.d(TAG, "onResponse: "+"done");
+    }catch (Exception e){
+
+        Log.d(TAG, "onResponse: " + e.getMessage());
+    }
+    if (bitmap!=null){
+        listItem.setPhoto(bitmap);
+    }
+
+
+}
 
 
     private String getURL(double latitude, double longitude, String placeType) {

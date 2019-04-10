@@ -40,9 +40,7 @@ public class Functions {
 
     public static Bitmap getBitmapFromURL(String src) {
 
-
         try {
-
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             URL url = new URL(src);
@@ -51,6 +49,36 @@ public class Functions {
             connection.connect();
             InputStream input = connection.getInputStream();
 
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Bitmap getBitmapFromRedirectedURL(String src) {
+
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            Log.d(TAG, "getBitmapFromRedirectedURL: url"+connection.getURL());
+
+
+            InputStream input = connection.getInputStream();
+
+            //again have to get it from redirected url
+            /*url = connection.getURL();
+            connection = (HttpURLConnection)url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+
+            input = connection.getInputStream();*/
+            Log.d(TAG, "getBitmapFromRedirectedURL: redirected url" +connection.getURL());
             Bitmap myBitmap = BitmapFactory.decodeStream(input);
             return myBitmap;
         } catch (IOException e) {

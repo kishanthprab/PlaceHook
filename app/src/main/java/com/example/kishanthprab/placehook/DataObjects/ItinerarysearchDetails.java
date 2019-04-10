@@ -11,7 +11,7 @@ public class ItinerarysearchDetails {
 
     private Place tripLocation;
     private ArrayList<String> placeTypeList;
-    public int PlacesCount;
+    public static int PlacesCount;
 
     public Place getTripLocation() {
         return tripLocation;

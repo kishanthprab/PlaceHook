@@ -120,6 +120,11 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
     //validate fields
     private boolean validateGenerateItineraryFields() {
 
+        if(txt_tripLocation.getText().toString().equals("") ||txt_tripLocation.getText().toString().equals(null)){
+
+            Toast.makeText(getActivity(), "Set the Trip Location First", Toast.LENGTH_SHORT).show();
+            return false;
+        }
 
         return true;
     }
@@ -241,6 +246,7 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
 
 
             case R.id.btn_ip_generateTrip:
+
                 if (validateGenerateItineraryFields()) {
 
 
@@ -311,7 +317,6 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
 
                     itineraryDetails.setTripLocation(place);
                     txt_tripLocation.setText(place.getName());
-
 
                     //search places function
                     //SearchItineraryPlaces("natural_feature");

@@ -54,11 +54,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
 
         //sample url = "https://wallpaper-gallery.net/images/image/image-13.jpg"
-        Picasso.get()
+        /*Picasso.get()
                 .load("https://wallpaper-gallery.net/images/image/image-13.jpg")
-                .into(viewHolder.imgView);
+                .into(viewHolder.imgView);*/
 
-
+        viewHolder.imgView.setImageBitmap(listItem.getPhoto());
 
 
         //viewHolder.imgView.setImageBitmap(Functions.getImageData());

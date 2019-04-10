@@ -199,8 +199,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             drawer.closeDrawer(GravityCompat.START);
 
         } else {
-            //super.onBackPressed();
-            System.exit(1);
+            super.onBackPressed();
+            //System.exit(1);
             //finish();
         }
 

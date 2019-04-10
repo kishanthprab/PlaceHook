@@ -1,5 +1,7 @@
 package com.example.kishanthprab.placehook.Utility;
 
+import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -9,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.rengwuxian.materialedittext.Colors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,26 +20,39 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ParserPolylineTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+public class ParserPolylineTask extends AsyncTask<Object, Integer, List<List<HashMap<String, String>>>> {
 
-    public static GoogleMap mMap;
-    public static Polyline polyline;
+    public  GoogleMap mMap;
+    public  Polyline polyline;
     private static final String TAG = "ParserPolylineTask";
+
 
     @Override
     protected void onPreExecute() {
+
+
         super.onPreExecute();
+
     }
 
     @Override
-    protected List<List<HashMap<String, String>>> doInBackground(String... strings) {
+    protected List<List<HashMap<String, String>>> doInBackground(Object... obj) {
         JSONObject jsonObject;
         List<List<HashMap<String, String>>> routes = null;
+
 
         try {
             //get json from results
 
-            jsonObject = new JSONObject(strings[0]);
+            mMap = (GoogleMap) obj[0];
+            polyline = (Polyline)  obj[1];
+            String st = (String) obj[2];
+
+            if (polyline!= null){
+                polyline.remove();
+            }
+
+            jsonObject = new JSONObject(st);
             //parse json
             DirectionsJSONParser directionsJSONParser = new DirectionsJSONParser();
             routes = directionsJSONParser.parse(jsonObject);
@@ -55,6 +71,7 @@ public class ParserPolylineTask extends AsyncTask<String, Integer, List<List<Has
 
         ArrayList<LatLng> points = null;
         PolylineOptions polylineOptions = null;
+
 
         for (int i = 0; i < lists.size(); i++) {
 
@@ -81,7 +98,7 @@ public class ParserPolylineTask extends AsyncTask<String, Integer, List<List<Has
             polylineOptions.addAll(points);
 
             polylineOptions.width(15);
-            polylineOptions.color(R.color.colorAccent);
+            polylineOptions.color(Color.RED);
             polylineOptions.geodesic(true);
 
 
