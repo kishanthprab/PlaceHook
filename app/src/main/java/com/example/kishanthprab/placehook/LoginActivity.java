@@ -17,9 +17,11 @@ import android.widget.Toast;
 
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.Functions;
+import com.example.kishanthprab.placehook.Utility.KeyboardUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -92,7 +94,9 @@ public class LoginActivity extends AppCompatActivity {
                     // alertDialog.setIcon(R.drawable.ic_launcher_background);
                     alertDialog.show();
 
+                    //KeyboardUtils.hideKeyboard(LoginActivity.this);
                     SignInUser(edt_LoginEmail.getText().toString(), edt_LoginPassword.getText().toString());
+
 
                 }
 
@@ -104,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private boolean validateLogin() {
+        KeyboardUtils.hideKeyboard(LoginActivity.this);
 
         if (TextUtils.isEmpty(edt_LoginEmail.getText().toString())) {
 
@@ -141,14 +146,15 @@ public class LoginActivity extends AppCompatActivity {
 
                             startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
 
+
                             //finish();
 
                         } else {
                             // If sign in fails, display a message to the user.
                             alertDialog.dismiss();
                             Log.d(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
-                            Snackbar.make(LoginRootLayout, "Failed " + task.getException(), Snackbar.LENGTH_SHORT).show();
+                           // Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
+                            Snackbar.make(LoginRootLayout, "Failed " + task.getException().getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
 
                         }
 
@@ -159,9 +165,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 alertDialog.dismiss();
-                Log.d(TAG, "signInWithEmail:failure", e);
-                Snackbar.make(LoginRootLayout, "Failed " + e, Snackbar.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Failed " + e, Toast.LENGTH_LONG).show();
+               // Log.d(TAG, "signInWithEmail:failure", e);
+                Snackbar.make(LoginRootLayout, "Failed " + e.getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Failed " + e, Toast.LENGTH_LONG).show();
             }
         });
 

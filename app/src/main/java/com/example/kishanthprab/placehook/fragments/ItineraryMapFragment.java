@@ -3,6 +3,7 @@ package com.example.kishanthprab.placehook.fragments;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -15,18 +16,26 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.ItinerarysearchDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.MyPlaceDetails;
+import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Reviews;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.MyPlaceDirection;
 import com.example.kishanthprab.placehook.Helper.DirectionsJSONParser;
 import com.example.kishanthprab.placehook.R;
+import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
+import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
 import com.example.kishanthprab.placehook.Utility.Functions;
@@ -56,7 +65,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback,GoogleMap.OnInfoWindowClickListener {
+public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private static final String TAG = "ItineraryFragment";
 
@@ -66,6 +75,9 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
     GoogleAPIService mService;
 
     LatLng pickedLocation;
+
+    Toolbar itinMap_toolbar;
+    TextView itinMap_toolbar_title;
 
     @Nullable
     @Override
@@ -80,6 +92,21 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
         //init
 
+        //init toolbar
+        itinMap_toolbar = (Toolbar) view.findViewById(R.id.itinMap_toolbar);
+        itinMap_toolbar_title = (TextView) view.findViewById(R.id.itinMap_toolbar_title);
+
+        ((AppCompatActivity) getActivity()).setSupportActionBar(itinMap_toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        itinMap_toolbar_title.setText("Itinerary Planner");
+
+        //navigation drawer toggle
+        ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(getActivity(), DashboardActivity.getDrawer(), itinMap_toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        DashboardActivity.getDrawer().addDrawerListener(actionbarToggle);
+        actionbarToggle.syncState();
+
 
         //init google services
         mService = CommonGoogle.getGoogleAPIService();
@@ -91,9 +118,13 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
         }
 
 
-
         return view;
 
+    }
+
+    public Context returnContext() {
+
+        return getActivity();
     }
 
     @Override
@@ -181,31 +212,32 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
         dialog.setMessage("Loading please wait...");
         dialog.show();
 
-        mService.getPlaceDetails(placeID,getActivity().getResources().getString(R.string.google_maps_key))
+        mService.getPlaceDetails(placeID, getActivity().getResources().getString(R.string.google_maps_key))
                 .enqueue(new Callback<MyPlaceDetails>() {
                     @Override
                     public void onResponse(Call<MyPlaceDetails> call, Response<MyPlaceDetails> response) {
 
-                        if (response.isSuccessful()){
+                        if (response.isSuccessful()) {
 
-                            Log.d(TAG, "onResponse: "+"success");
+                            Log.d(TAG, "onResponse: " + "success");
 
                             Functions_Itinerary.CurrentPlaceDetails = response.body();
 
                             //String jsonString = Functions.toJSON(response.body().toString());
 
-                            Log.d(TAG, "onResponse: "+Functions_Itinerary.CurrentPlaceDetails.getResult().toString());
+                            Log.d(TAG, "onResponse: " + Functions_Itinerary.CurrentPlaceDetails.getResult().toString());
 
 
 
                         }
 
-                    dialog.dismiss();
+                        dialog.dismiss();
                     }
+
 
                     @Override
                     public void onFailure(Call<MyPlaceDetails> call, Throwable t) {
-                        Log.d(TAG, "onFailure: "+ t.getMessage());
+                        Log.d(TAG, "onFailure: " + t.getMessage());
                     }
                 });
 
@@ -248,7 +280,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                         .title(placeName));
 
                 Functions_Itinerary.AddedMarkers.add(m);
-                Functions_Itinerary.AddedMarkersWithPlaceID.put(placeId,m);
+                Functions_Itinerary.AddedMarkersWithPlaceID.put(placeId, m);
             }
         }
 
@@ -256,17 +288,20 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
             polyline.remove();
         }
 
-        for (int r =0;r<placeIndexes.size()-1;r++){
+        Functions_Itinerary.ItineraryPlacesDirections = new ArrayList<>();
+        Functions_Itinerary.ItineraryPlacesDirections.clear();
+
+        for (int r = 0; r < placeIndexes.size() - 1; r++) {
 
             LatLng origin = new LatLng(Functions_Itinerary.AddedMarkers.get(r).getPosition().latitude,
                     Functions_Itinerary.AddedMarkers.get(r).getPosition().longitude);
-            LatLng destination = new LatLng(Functions_Itinerary.AddedMarkers.get(r+1).getPosition().latitude,
-                    Functions_Itinerary.AddedMarkers.get(r+1).getPosition().longitude);
+            LatLng destination = new LatLng(Functions_Itinerary.AddedMarkers.get(r + 1).getPosition().latitude,
+                    Functions_Itinerary.AddedMarkers.get(r + 1).getPosition().longitude);
 
 
+            Log.d(TAG, "SetMapMarkers: " + "origin : " + origin + " , dest :" + destination);
 
-            Log.d(TAG, "SetMapMarkers: "+ "origin : " +origin + " , dest :"+destination);
-            DrawPath(origin,destination);
+            DrawPath(origin, destination,0);
 
         }
 
@@ -277,21 +312,21 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
     public void onInfoWindowClick(Marker marker) {
 
         //getDetails
-        for (String plcID : Functions_Itinerary.AddedMarkersWithPlaceID.keySet()){
+        for (String plcID : Functions_Itinerary.AddedMarkersWithPlaceID.keySet()) {
 
-            Log.d(TAG, "onInfoWindowClick: marker "+ marker.getPosition().toString() +
-                    ", added marker"+Functions_Itinerary.AddedMarkersWithPlaceID.get(plcID).getPosition());
+            Log.d(TAG, "onInfoWindowClick: marker " + marker.getPosition().toString() +
+                    ", added marker" + Functions_Itinerary.AddedMarkersWithPlaceID.get(plcID).getPosition());
 
-            if (marker.getPosition().toString().equals(Functions_Itinerary.AddedMarkersWithPlaceID.get(plcID).getPosition().toString())){
+            if (marker.getPosition().toString().equals(Functions_Itinerary.AddedMarkersWithPlaceID.get(plcID).getPosition().toString())) {
 
                 getPlaceDetails(plcID);
 
-                Log.d(TAG, "onInfoWindowClick: "+"marker available");
+                Log.d(TAG, "onInfoWindowClick: " + "marker available");
                 break;
             }
         }
 
-        DialogFragment dialog = PlaceDetailsDialog.newInstance();
+        final DialogFragment dialog = PlaceDetailsDialog.newInstance();
 
         //need to set callback
         ((PlaceDetailsDialog) dialog).setCallback(new PlaceDetailsDialog.Callback() {
@@ -301,26 +336,104 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
             }
 
             @Override
-            public void onActionCLickForAllViews(final TextView txt_placeName, final TextView txt_totRating, TextView txt_distance, final TextView txt_address, final TextView txt_numOfReviews) {
+            public void onActionCLickForAllViews(final TextView txt_placeName, final TextView txt_totRating, final TextView txt_address, final TextView txt_numOfReviews, final ArrayList<ReviewRecyclerListItem> reviewsList) {
 
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (Functions_Itinerary.CurrentPlaceDetails!= null){
+
+                        if (Functions_Itinerary.CurrentPlaceDetails != null) {
 
                             String name = Functions_Itinerary.CurrentPlaceDetails.getResult().getName();
-                            String totRating =Functions_Itinerary.CurrentPlaceDetails.getResult().getRating();
+                            String totRating = Functions_Itinerary.CurrentPlaceDetails.getResult().getRating();
                             String NoOfTotalRating = Functions_Itinerary.CurrentPlaceDetails.getResult().getUser_ratings_total();
                             String address = Functions_Itinerary.CurrentPlaceDetails.getResult().getFormatted_address();
 
                             txt_placeName.setText(name);
                             txt_address.setText(address);
                             txt_totRating.setText(totRating + "/5");
-                            txt_numOfReviews.setText(NoOfTotalRating +" recommendations");
+                            txt_numOfReviews.setText("Reviews");
+
+                            assignArray(reviewsList);
+
+                            //check whether reviews are null or not
+                            if (Functions_Itinerary.CurrentPlaceDetails.getResult().getReviews() != null) {
+
+                                int length;
+                                if (Functions_Itinerary.CurrentPlaceDetails.getResult().getReviews().length <= 15) {
+
+                                    length = Functions_Itinerary.CurrentPlaceDetails.getResult().getReviews().length;
+
+                                } else {
+                                    length = 15;
+
+                                }
+
+                                for (int i = 0; i < length; i++) {
+
+                                    Reviews review = Functions_Itinerary.CurrentPlaceDetails.getResult().getReviews()[i];
+
+                                    ReviewRecyclerListItem reviewListItem = new ReviewRecyclerListItem(
+                                            review.getAuthor_name(),
+                                            Double.parseDouble(review.getRating()),
+                                            review.getProfile_photo_url(),
+                                            review.getRelative_time_description(),
+                                            review.getText()
+                                    );
+
+                                    Log.d(TAG, "Review "+i+": "+review.toString());
+                                    reviewsList.add(reviewListItem);
+
+
+                                }
+
+
+                            }else {
+                                txt_numOfReviews.setText("No Reviews");
+                            }
+
+
+                        } else {
+
+                            handler.post(this);
+                        }
+
+                    }
+                }, 500);
+
+
+            }
+
+            @Override
+            public void setImageView(final ImageView imageView) {
+
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (Functions_Itinerary.CurrentPlaceDetails!= null){
+                            Bitmap bitmap = null;
+                            try {
+                                //  bitmap = Functions.getBitmapFromRedirectedURL("https://lh4.googleusercontent.com/-1wzlVdxiW14/USSFZnhNqxI/AAAAAAAABGw/YpdANqaoGh4/s1600-w400/Google%2BSydney");
+                                bitmap = Functions
+                                        .getBitmapFromRedirectedURL("https://maps.googleapis.com/maps/api/place/photo?maxheight=330&photoreference="
+                                                + Functions_Itinerary.CurrentPlaceDetails.getResult().getPhotos()[0].getPhoto_reference() +
+                                                "&key=" + getActivity().getResources().getString(R.string.google_maps_key));
+
+                                Log.d(TAG, "onResponse: " + "done");
+                            } catch (Exception e) {
+
+                                Log.d(TAG, "onResponse: " + e.getMessage());
+                            }
+
+                            if (bitmap != null) {
+
+                                imageView.setImageBitmap(bitmap);
+                            }
 
                         }else {
-
                             handler.post(this);
                         }
 
@@ -330,13 +443,19 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
 
             }
+
         });
 
-        dialog.show(getChildFragmentManager(),"PlaceDialog");
+        dialog.show(getChildFragmentManager(), "PlaceDialog");
 
-        Toast.makeText(getActivity(), "marker info " + marker.getTitle() , Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "marker info " + marker.getTitle(), Toast.LENGTH_SHORT).show();
 
 
+    }
+
+    void assignArray(ArrayList<ReviewRecyclerListItem> list) {
+
+        list = new ArrayList<>();
     }
 
 
@@ -357,7 +476,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
     //draw path
     private void DrawPath(LatLng originLocation,
-                          LatLng destinationLocation) {
+                          LatLng destinationLocation, final int index) {
 
         String origin = new StringBuilder(String.valueOf(originLocation.latitude))
                 .append(",")
@@ -379,11 +498,12 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                             Log.d(TAG, "onResponse: " + response.body().toString());
                             Log.d(TAG, "onResponse: " + " scalr response success");
 
-                            MyPlaceDirection PlaceDirection = response.body();
 
-                            String jsonString = Functions.toJSON(PlaceDirection);
+                            //MyPlaceDirection PlaceDirection = response.body();
+                            Functions_Itinerary.ItineraryPlacesDirections.add(index,response.body());
+                            String jsonString = Functions.toJSON(Functions_Itinerary.ItineraryPlacesDirections.get(index));
 
-                            Log.d(TAG, "onResponse: " + jsonString);
+                            Log.d(TAG, "onResponse: Place Direction results " + jsonString);
 
                             new ParserTask().execute(jsonString);
 
@@ -455,7 +575,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                     LatLng position = new LatLng(lat, lng);
 
-                    Log.d(TAG, "onPostExecute: " + position.toString());
+                    // Log.d(TAG, "onPostExecute: " + position.toString());
                     points.add(position);
 
                 }

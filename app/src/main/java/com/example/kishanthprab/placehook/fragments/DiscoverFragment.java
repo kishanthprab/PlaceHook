@@ -10,21 +10,28 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.app.AlertDialog;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.HttpResponse;
+import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Photos;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
@@ -33,6 +40,7 @@ import com.example.kishanthprab.placehook.Recycler.RecyclerAdapter;
 import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
+import com.example.kishanthprab.placehook.Utility.DownloadImageTask;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_nearby;
 import com.google.android.gms.common.api.ApiException;
@@ -64,9 +72,13 @@ public class DiscoverFragment extends Fragment {
 
     private List<RecyclerListItem> feedList;
 
+    Toolbar disc_toolbar;
+    TextView disc_toolbar_title;
+
     GoogleAPIService googleNearbyService;
     PlacesClient placesClient;
 
+    AlertDialog alertDialog;
 
     //for location
     FusedLocationProviderClient fusedLocationClient;
@@ -82,6 +94,24 @@ public class DiscoverFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.fragment_discover, container, false);
+
+        //init components
+
+        //init toolbar
+        disc_toolbar = (Toolbar)fragmentView.findViewById(R.id.disc_toolbar);
+        disc_toolbar_title =(TextView)disc_toolbar.findViewById(R.id.disc_toolbar_title);
+
+        ((AppCompatActivity)getActivity()).setSupportActionBar(disc_toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        disc_toolbar_title.setText("Discover");
+
+        //navigation drawer toggle
+        ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(getActivity(), DashboardActivity.getDrawer(), disc_toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        DashboardActivity.getDrawer().addDrawerListener(actionbarToggle);
+        actionbarToggle.syncState();
+
 
         //initialize services
         googleNearbyService = CommonGoogle.getGoogleAPIService();
@@ -104,9 +134,6 @@ public class DiscoverFragment extends Fragment {
         recyclerAdapter = new RecyclerAdapter(feedList, getActivity());
         recyclerView.setAdapter(recyclerAdapter);
 
-
-        //gets details for the feed
-        //nearbyPlace("point_of_interest");
 
 
         final Handler handler = new Handler();
@@ -248,7 +275,7 @@ public class DiscoverFragment extends Fragment {
     //nearby place get call
     private void nearbyPlace(String placeType) {
 
-        final AlertDialog alertDialog = showDialog();
+        alertDialog = showDialog();
 
         alertDialog.setMessage("Loading please wait...");
         alertDialog.show();
@@ -281,29 +308,33 @@ public class DiscoverFragment extends Fragment {
                                     String PlaceName = googlePlace.getName();
                                     double rating = Double.parseDouble(googlePlace.getRating());
 
+                                    float[] distance = new float[5];
+                                    Location.distanceBetween(placeLocation.latitude,
+                                            placeLocation.longitude,
+                                            LastLocation.getLatitude(),LastLocation.getLongitude(),distance
+                                            );
+                                    double roundedDistance =  Double.parseDouble(String.format("%.2f",distance[0]/1000 ));
 
-                                    RecyclerListItem listItem = new RecyclerListItem(
-                                            PlaceName,
-                                            rating,
-                                            1.4
-                                    );
+                                    if (distance.length != 0) {
 
-                                    //photoresult
-
-                                    getPhoto(googlePlace,listItem);
+                                        RecyclerListItem listItem = new RecyclerListItem(
+                                                PlaceName,
+                                                rating,
+                                                roundedDistance
+                                        );
 
 
-                                    listItem.setPlacePhotos(googlePlace.getPhotos());
+                                        listItem.setPlacePhotos(googlePlace.getPhotos());
 
+                                        //photoresult
+                                        getPhoto(googlePlace, listItem);
 
-                                    feedList.add(listItem);
+                                        feedList.add(listItem);
+                                    }
                                     //Log.d("response", "value added " + PlaceName);
-
-
 
                                 }
                                 alertDialog.dismiss();
-
 
                             }
 
@@ -318,26 +349,27 @@ public class DiscoverFragment extends Fragment {
 
     }
 
-private void getPhoto(Results googleplace,RecyclerListItem listItem){
+    private void getPhoto(Results googleplace, RecyclerListItem listItem) {
 
-    Bitmap bitmap = null;
-    try {
-        //  bitmap = Functions.getBitmapFromRedirectedURL("https://lh4.googleusercontent.com/-1wzlVdxiW14/USSFZnhNqxI/AAAAAAAABGw/YpdANqaoGh4/s1600-w400/Google%2BSydney");
-        bitmap = Functions
-                .getBitmapFromRedirectedURL("https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference="
-                        +googleplace.getPhotos()[0].getPhoto_reference()+
-                        "&key=AIzaSyDDupZgfGCyDu6EBN1suSvisv0Z_3iC9ms");
-        Log.d(TAG, "onResponse: "+"done");
-    }catch (Exception e){
+        Bitmap bitmap = null;
+        try {
+            //  bitmap = Functions.getBitmapFromRedirectedURL("https://lh4.googleusercontent.com/-1wzlVdxiW14/USSFZnhNqxI/AAAAAAAABGw/YpdANqaoGh4/s1600-w400/Google%2BSydney");
+            bitmap = Functions
+                    .getBitmapFromRedirectedURL("https://maps.googleapis.com/maps/api/place/photo?maxwidth=900&photoreference="
+                            + googleplace.getPhotos()[0].getPhoto_reference() +
+                            "&key="+getActivity().getResources().getString(R.string.google_maps_key));
 
-        Log.d(TAG, "onResponse: " + e.getMessage());
+            Log.d(TAG, "onResponse: " + "done");
+        } catch (Exception e) {
+
+            Log.d(TAG, "onResponse: " + e.getMessage());
+        }
+        if (bitmap != null) {
+            listItem.setPhoto(bitmap);
+        }
+
+
     }
-    if (bitmap!=null){
-        listItem.setPhoto(bitmap);
-    }
-
-
-}
 
 
     private String getURL(double latitude, double longitude, String placeType) {

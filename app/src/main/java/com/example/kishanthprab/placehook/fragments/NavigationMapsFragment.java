@@ -18,6 +18,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -29,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.Geocoded_waypoints;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.MyPlaceDirection;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Geometry;
@@ -96,9 +99,8 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
     final static String TAG = "NavigationFragment";
 
-    Toolbar toolbar_nearbyPlaces;
-    TextView toolbar_title;
-    ImageView img_filter;
+    Toolbar navmap_toolbar;
+    TextView navMap_toolbar_title;
 
     TextView navigation_searchCurrent;
     TextView navigation_searchDestination;
@@ -119,7 +121,6 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         View view = inflater.inflate(R.layout.fragment_navigation_maps, container, false);
 
-
         //init google services
         mService = CommonGoogle.getGoogleAPIService();
         //mService = CommonGoogle.getGoogleAPIServiceScalars();
@@ -129,6 +130,24 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(getActivity());
+
+        //init components
+
+        //init toolbar
+        navmap_toolbar = (Toolbar)view.findViewById(R.id.navMap_toolbar);
+        navMap_toolbar_title =(TextView)view.findViewById(R.id.navMap_toolbar_title);
+
+        ((AppCompatActivity)getActivity()).setSupportActionBar(navmap_toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        navMap_toolbar_title.setText("Navigation");
+
+        //navigation drawer toggle
+        ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(getActivity(), DashboardActivity.getDrawer(), navmap_toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        DashboardActivity.getDrawer().addDrawerListener(actionbarToggle);
+        actionbarToggle.syncState();
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.navigationMap);

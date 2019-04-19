@@ -1,11 +1,15 @@
 package com.example.kishanthprab.placehook.Utility;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.input.InputManager;
 import android.os.StrictMode;
 import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Photos;
 import com.example.kishanthprab.placehook.LoginActivity;

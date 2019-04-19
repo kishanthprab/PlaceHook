@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.example.kishanthprab.placehook.DataObjects.User;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.Functions;
+import com.example.kishanthprab.placehook.Utility.KeyboardUtils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
@@ -30,6 +31,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rengwuxian.materialedittext.MaterialAutoCompleteTextView;
 import com.rengwuxian.materialedittext.MaterialEditText;
+
+import java.security.Key;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -111,6 +114,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     private boolean validateSignup() {
 
+        KeyboardUtils.hideKeyboard(RegisterActivity.this);
+
         if (TextUtils.isEmpty(edtEmail.getText().toString())) {
 
             Snackbar.make(RegrootLayout, "Please enter email address", Snackbar.LENGTH_SHORT).show();
@@ -179,7 +184,7 @@ public class RegisterActivity extends AppCompatActivity {
                             public void onFailure(@NonNull Exception e) {
                                 alertDialog.dismiss();
 
-                                Snackbar.make(RegrootLayout, "Creating account failed " + e, Snackbar.LENGTH_SHORT).show();
+                                Snackbar.make(RegrootLayout, "Creating account failed " + e.getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
                             }
                         });
 

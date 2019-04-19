@@ -18,6 +18,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,6 +67,11 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
     Marker userCurrentLocation;
     Location LastLocation = null;
 
+    Toolbar nearby_toolbar;
+    TextView nearby_toolbar_title;
+
+
+
     private static final int Request_user_Location_code = 2;
     final static String TAG = "NearbyFragment";
 
@@ -82,7 +88,22 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
 
         View view = inflater.inflate(R.layout.fragment_nearby_maps, container, false);
 
+        //init components
 
+        //init toolbar
+        nearby_toolbar = (Toolbar)view.findViewById(R.id.nearbyMap_toolbar);
+        nearby_toolbar_title =(TextView)view.findViewById(R.id.nearbyMap_toolbar_title);
+
+        ((AppCompatActivity)getActivity()).setSupportActionBar(nearby_toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        nearby_toolbar_title.setText("Nearby");
+
+        //navigation drawer toggle
+        ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(getActivity(), DashboardActivity.getDrawer(), nearby_toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        DashboardActivity.getDrawer().addDrawerListener(actionbarToggle);
+        actionbarToggle.syncState();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.nearbyMap);

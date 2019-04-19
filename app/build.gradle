@@ -90,6 +90,9 @@ dependencies {
     //timepicker
     implementation 'mobi.upod:time-duration-picker:1.1.3'
 
+    //circular imageview
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
+
 
 }
 

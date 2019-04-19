@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,18 +8,43 @@
     android:layout_height="match_parent"
     tools:context=".fragments.NavigationMapsFragment" >
 
-    <LinearLayout
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/navMap_toolbar"
         android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimaryDark"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:fontFamily="@font/opensansregular"
+            android:layout_gravity="center"
+            android:id="@+id/navMap_toolbar_title" />
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="30dp"
+        android:layout_below="@+id/navMap_toolbar"
+        android:layout_alignParentLeft="true"
         android:background="@color/gray"
         android:elevation="10dp"
-        android:padding="5dp">
+        android:orientation="vertical"
+        map:layout_constraintEnd_toEndOf="@id/navMap_toolbar"
+        map:layout_constraintStart_toStartOf="parent"
+        map:layout_constraintTop_toBottomOf="@+id/navMap_toolbar">
 
         <LinearLayout
             android:id="@+id/linear1"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:padding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -32,35 +57,30 @@
                 android:src="@drawable/ic_search_black_24dp" />
 
             <TextView
+                android:id="@+id/edt_Csearch"
                 android:layout_width="400dp"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
-                android:text="enter location"
-                android:id="@+id/edt_Csearch"
                 android:singleLine="true"
+                android:text="Enter location"
+                android:textSize="15sp"
 
                 />
 
 
         </LinearLayout>
 
+        <fragment
+            android:id="@+id/navigationMap"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-
-
-
+        </fragment>
     </LinearLayout>
 
 
-    <fragment
-        android:id="@+id/navigationMap"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true">
-
-    </fragment>
 
 
 
-</RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>

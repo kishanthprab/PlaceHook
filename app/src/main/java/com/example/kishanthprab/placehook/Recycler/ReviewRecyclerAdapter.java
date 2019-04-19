@@ -1,10 +1,8 @@
 package com.example.kishanthprab.placehook.Recycler;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,31 +10,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.kishanthprab.placehook.R;
-import com.example.kishanthprab.placehook.Utility.DownloadImageTask;
 import com.example.kishanthprab.placehook.Utility.Functions;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+import de.hdodenhof.circleimageview.CircleImageView;
 
-    private List<RecyclerListItem> RecyclerListItem;
+public class ReviewRecyclerAdapter extends RecyclerView.Adapter<ReviewRecyclerAdapter.ViewHolder> {
+
+    private List<ReviewRecyclerListItem> Review_RecyclerListItem;
     private Context context;
 
-    public RecyclerAdapter(List<com.example.kishanthprab.placehook.Recycler.RecyclerListItem> recyclerListItem, Context context) {
-        RecyclerListItem = recyclerListItem;
+    public ReviewRecyclerAdapter(List<com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem> recyclerListItem, Context context) {
+        this.Review_RecyclerListItem = recyclerListItem;
         this.context = context;
     }
-    
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.discover_feed, viewGroup, false);
-
+                .inflate(R.layout.review_recycler, viewGroup, false);
 
         return new ViewHolder(view);
     }
@@ -44,21 +39,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
-        RecyclerListItem listItem = RecyclerListItem.get(i);
+        ReviewRecyclerListItem listItem = Review_RecyclerListItem.get(i);
 
-        viewHolder.placName.setText(listItem.getPlaceName());
-        viewHolder.rating.setText(listItem.getRating() + "/5");
-        viewHolder.dist.setText("~ " + listItem.getDist() + "KM NEARBY");
+        viewHolder.authorName.setText(listItem.getAuthorName());
+        viewHolder.givenRating.setText(listItem.getGivenRating() + "/5");
+        viewHolder.reviewText.setText(listItem.getReview_text());
+        viewHolder.relativeTime.setText(listItem.getRelativeTime());
 
-        //sample url = "https://wallpaper-gallery.net/images/image/image-13.jpg"
-        /*Picasso.get()
-                .load("https://wallpaper-gallery.net/images/image/image-13.jpg")
-                .into(viewHolder.imgView);*/
+        viewHolder.profileImage.setImageBitmap(Functions.getBitmapFromURL(listItem.getPhotoUrl()));
 
-        viewHolder.imgView.setImageBitmap(listItem.getPhoto());
-
-
-        double rat = (double) listItem.getRating();
+        double rat = listItem.getGivenRating();
         //setroundColor(0.5, listItem.getRating(), viewHolder);
 
         double j = 0.5;
@@ -140,35 +130,42 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public int getItemCount() {
-        return RecyclerListItem.size();
+        return Review_RecyclerListItem.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView placName;
-        public TextView rating;
-        public TextView dist;
+        public TextView authorName;
+        public TextView givenRating;
+        public TextView relativeTime;
+        public TextView reviewText;
+
+
         public ImageView roundDot1;
         public ImageView roundDot2;
         public ImageView roundDot3;
         public ImageView roundDot4;
         public ImageView roundDot5;
 
-        public ImageView imgView;
+        public CircleImageView profileImage;
+        public ImageView reviewTypeIcon;
 
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            placName = (TextView) itemView.findViewById(R.id.disc_name);
-            rating = (TextView) itemView.findViewById(R.id.disc_rating);
-            dist = (TextView) itemView.findViewById(R.id.disc_dist);
-            roundDot1 = (ImageView) itemView.findViewById(R.id.disc_round1);
-            roundDot2 = (ImageView) itemView.findViewById(R.id.disc_round2);
-            roundDot3 = (ImageView) itemView.findViewById(R.id.disc_round3);
-            roundDot4 = (ImageView) itemView.findViewById(R.id.disc_round4);
-            roundDot5 = (ImageView) itemView.findViewById(R.id.disc_round5);
+            authorName = (TextView) itemView.findViewById(R.id.rev_authorName);
+            givenRating = (TextView) itemView.findViewById(R.id.rev_givenRating);
+            relativeTime = (TextView) itemView.findViewById(R.id.rev_relativeTime);
+            reviewText = (TextView) itemView.findViewById(R.id.rev_review_text);
 
-            imgView = (ImageView) itemView.findViewById(R.id.disc_image);
+            roundDot1 = (ImageView) itemView.findViewById(R.id.rev_round1);
+            roundDot2 = (ImageView) itemView.findViewById(R.id.rev_round2);
+            roundDot3 = (ImageView) itemView.findViewById(R.id.rev_round3);
+            roundDot4 = (ImageView) itemView.findViewById(R.id.rev_round4);
+            roundDot5 = (ImageView) itemView.findViewById(R.id.rev_round5);
+
+            profileImage = (CircleImageView) itemView.findViewById(R.id.rev_profileImage);
+            reviewTypeIcon = (ImageView) itemView.findViewById(R.id.rev_imgV_ReviewIcon);
         }
     }
 }

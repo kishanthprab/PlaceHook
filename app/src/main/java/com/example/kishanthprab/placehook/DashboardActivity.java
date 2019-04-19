@@ -28,6 +28,7 @@ import com.example.kishanthprab.placehook.Utility.FilterDialog;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
 import com.example.kishanthprab.placehook.fragments.DiscoverFragment;
+import com.example.kishanthprab.placehook.fragments.ItineraryMapFragment;
 import com.example.kishanthprab.placehook.fragments.ItineraryPlannerFragment;
 import com.example.kishanthprab.placehook.fragments.MapsFragment;
 import com.example.kishanthprab.placehook.fragments.NavigationMapsFragment;
@@ -42,10 +43,11 @@ import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
-    private DrawerLayout drawer;
-    private Toolbar toolbar;
-    private TextView toolbar_title;
-    private ImageView img_filter;
+    private static DrawerLayout drawer;
+
+    public static DrawerLayout getDrawer() {
+        return drawer;
+    }
 
     final static String TAG = "DashboardActivity";
 
@@ -61,27 +63,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        //sets toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar_title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        img_filter = (ImageView) toolbar.findViewById(R.id.img_filter);
-
-        img_filter.setOnClickListener(this);
-
-
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(this, drawer, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(actionbarToggle);
-        actionbarToggle.syncState();
 
         nav_header_name = (TextView) findViewById(R.id.nav_header_name);
         nav_header_email = (TextView) findViewById(R.id.nav_header_email);
@@ -115,7 +100,6 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     new DiscoverFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_Discover);
-            toolbar_title.setText("Discover");
         }
 
 
@@ -126,27 +110,27 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         switch (menuItem.getItemId()) {
 
             case R.id.nav_Discover:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new DiscoverFragment()).commit();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new DiscoverFragment())
+                        .commit();
 
-                toolbar_title.setText("Discover");
-                img_filter.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Discover", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_Itinerary:
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new ItineraryPlannerFragment()).commit();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new ItineraryPlannerFragment())
+                        .addToBackStack(null)
+                        .commit();
 
-                toolbar_title.setText("Itinerary Planner");
-                img_filter.setVisibility(View.INVISIBLE);
                 Toast.makeText(this, "Itinerary Planner", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_Nearby:
-                toolbar_title.setText("Nearby");
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new NearbyMapsFragment()).commit();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new NearbyMapsFragment())
+                        .addToBackStack(null)
+                        .commit();
 
                 Toast.makeText(this, "Nearby", Toast.LENGTH_SHORT).show();
                 break;
@@ -154,29 +138,27 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             case R.id.nav_Navigation:
                 // startActivity(new Intent(DashboardActivity.this,MapsFragment.class));
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new NavigationMapsFragment()).commit();
-                toolbar_title.setText("Navigation");
-                img_filter.setVisibility(View.INVISIBLE);
+                        new NavigationMapsFragment())
+                        .addToBackStack(null)
+                        .commit();
+
                 Toast.makeText(this, "Navigation", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_ARNavigation:
-                toolbar_title.setText("AR Navigation");
-                img_filter.setVisibility(View.INVISIBLE);
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new sampleMapActivity()).commit();
+
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new sampleMapActivity())
+                        .addToBackStack(null)
+                        .commit();
                 Toast.makeText(this, "AR Navigation", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_Favourites:
-                toolbar_title.setText("Favourites");
-                img_filter.setVisibility(View.INVISIBLE);
+
                 Toast.makeText(this, "Favourites", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.nav_settings:
-                toolbar_title.setText("Settings");
-                img_filter.setVisibility(View.INVISIBLE);
-                Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show();
-                break;
+
             case R.id.nav_logout:
                 Toast.makeText(this, "Sign out", Toast.LENGTH_SHORT).show();
                 if (FireAuthUtil.getmUser() != null) {
@@ -199,9 +181,30 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             drawer.closeDrawer(GravityCompat.START);
 
         } else {
-            super.onBackPressed();
-            //System.exit(1);
-            //finish();
+
+            int count = getSupportFragmentManager().getBackStackEntryCount();
+            List<Fragment> fragments = getSupportFragmentManager().getFragments();
+
+            Log.d(TAG, "onBackPressed: count : " + count);
+
+            if (count == 0) {
+                //super.onBackPressed();
+                //System.exit(0);
+                finish();
+                //additional code
+            } else {
+
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragment_container, new DiscoverFragment())
+                                .commit();
+
+                //getSupportFragmentManager().beginTransaction()
+                //.replace(R.id.fragment_container, new DiscoverFragment())
+                //.commit();
+                //getSupportFragmentManager().popBackStackImmediate();
+            }
+
+
         }
 
 
@@ -236,7 +239,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         switch (v.getId()) {
 
 
-            case R.id.img_filter:
+            /*case R.id.img_filter:
                 Toast.makeText(getApplicationContext(), "filter clicked", Toast.LENGTH_SHORT).show();
                 final DialogFragment dialog = FilterDialog.newInstance();
 
@@ -257,7 +260,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
                 dialog.show(getSupportFragmentManager(), "tag");
 
-                break;
+                break;*/
 
         }
 

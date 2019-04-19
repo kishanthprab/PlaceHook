@@ -9,6 +9,9 @@ import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.ItinerarysearchDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
@@ -66,6 +70,11 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
     boolean validationBool = false;
 
     ItinerarysearchDetails itineraryDetails;
+    Toolbar itinPlan_toolbar;
+    TextView itinPlan_toolbar_title;
+
+    boolean zeroException = false;
+
 
     GoogleAPIService googleService;
 
@@ -81,6 +90,23 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
         spinner_NoOfPlaces = (Spinner) v.findViewById(R.id.spinner_ip_NoOfPlaces);
         spinner_placeType = (Spinner) v.findViewById(R.id.spinner_ip_placeType);
         btn_generateTrip = (MaterialButton) v.findViewById(R.id.btn_ip_generateTrip);
+        btn_generateTrip.setEnabled(false);
+
+        //init toolbar
+        itinPlan_toolbar = (Toolbar) v.findViewById(R.id.itinPlan_toolbar);
+        itinPlan_toolbar_title = (TextView) v.findViewById(R.id.itinPlan_toolbar_title);
+
+        ((AppCompatActivity) getActivity()).setSupportActionBar(itinPlan_toolbar);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        itinPlan_toolbar_title.setText("Itinerary Planner");
+
+        //navigation drawer toggle
+        ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(getActivity(), DashboardActivity.getDrawer(), itinPlan_toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        DashboardActivity.getDrawer().addDrawerListener(actionbarToggle);
+        actionbarToggle.syncState();
+
 
         //init google services
         googleService = CommonGoogle.getGoogleAPIService();
@@ -120,9 +146,9 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
     //validate fields
     private boolean validateGenerateItineraryFields() {
 
-        if(txt_tripLocation.getText().toString().equals("") ||txt_tripLocation.getText().toString().equals(null)){
+        if (txt_tripLocation.getText().toString().equals("") || txt_tripLocation.getText().toString().equals(null)) {
 
-            Toast.makeText(getActivity(), "Set the Trip Location First", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Set the Trip Location", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -188,35 +214,52 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
 
                                 Log.d("response", "successfull");
 
-                                Functions_Itinerary.TotalNoOfPlaces = response.body().getResults().length;
 
-                                Functions_Itinerary.ItineraryPlacesList = new HashMap<String, Results>();
-                                Functions_Itinerary.ItineraryPlacesList.clear();
+                                if (response.body().getResults().length == 0) {
 
-                                Functions_Itinerary.ItineraryPlacesResults = new ArrayList<Results>();
-                                Functions_Itinerary.ItineraryPlacesResults.clear();
+                                    alertDialog.dismiss();
+                                    txt_tripLocation.setText("");
+                                    Toast.makeText(getActivity(), "Sorry! there are no places in that area. Try again with the different category or location", Toast.LENGTH_SHORT).show();
+
+                                } else {
 
 
-                                for (int i = 0; i < response.body().getResults().length; i++) {
+                                    Functions_Itinerary.TotalNoOfPlaces = response.body().getResults().length;
+                                    Log.d(TAG, "onResponse: totPlaces" + response.body().getResults().length);
 
-                                    Functions_Itinerary.ItineraryPlacesResults.add(i, response.body().getResults()[i]);
+                                    Functions_Itinerary.ItineraryPlacesList = new HashMap<String, Results>();
+                                    Functions_Itinerary.ItineraryPlacesList.clear();
 
-                                    String PlaceID = response.body().getResults()[i].getPlace_id();
-                                    Functions_Itinerary.ItineraryPlacesList.put(
-                                            PlaceID,
-                                            response.body().getResults()[i]);
+                                    Functions_Itinerary.ItineraryPlacesResults = new ArrayList<Results>();
+                                    Functions_Itinerary.ItineraryPlacesResults.clear();
 
-                                    Log.d(TAG, "onResponse: name" +
-                                            Functions_Itinerary.ItineraryPlacesList.get(PlaceID).toString());
+
+                                    for (int i = 0; i < response.body().getResults().length; i++) {
+
+                                        Functions_Itinerary.ItineraryPlacesResults.add(i, response.body().getResults()[i]);
+
+                                        String PlaceID = response.body().getResults()[i].getPlace_id();
+                                        Functions_Itinerary.ItineraryPlacesList.put(
+                                                PlaceID,
+                                                response.body().getResults()[i]);
+
+                                        Log.d(TAG, "onResponse: all values " +
+                                                Functions_Itinerary.ItineraryPlacesList.get(PlaceID).toString());
+
+                                    }
+
+
+                                    btn_generateTrip.setEnabled(true);
+
+                                    //set places count in spinner
+                                    numberList.clear();
+                                    spinner_NoOfPlaces.setVisibility(View.VISIBLE);
+                                    numberList.addAll(itineraryDetails.getNoOfPlacesList(Functions_Itinerary.TotalNoOfPlaces));
+                                    NoOfPlacesAdapter.notifyDataSetChanged();
+                                    alertDialog.dismiss();
 
                                 }
-                                alertDialog.dismiss();
 
-                                //set places count in spinner
-                                numberList.clear();
-                                spinner_NoOfPlaces.setVisibility(View.VISIBLE);
-                                numberList.addAll(itineraryDetails.getNoOfPlacesList(Functions_Itinerary.TotalNoOfPlaces));
-                                NoOfPlacesAdapter.notifyDataSetChanged();
 
                             }
 
@@ -249,19 +292,21 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
 
                 if (validateGenerateItineraryFields()) {
 
-
                     itineraryDetails.PlacesCount = Integer.parseInt(spinner_NoOfPlaces.getSelectedItem().toString());
 
-                    getChildFragmentManager().beginTransaction().replace(R.id.ItineraryHome_root
-                            , new ItineraryMapFragment()).commit();
+                    getChildFragmentManager().beginTransaction()
+                            .replace(R.id.ItineraryHome_root, new ItineraryMapFragment(), null)
+                            .addToBackStack(null)
+                            .commit();
 
-                    Toast.makeText(getActivity(), "placetype:" + spinner_placeType.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getActivity(), "placetype:" + spinner_placeType.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
 
                 }
 
                 break;
         }
     }
+
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

@@ -66,10 +66,10 @@ public class ItinerarysearchDetails {
 
         ArrayList<String> NoOfPlacesList = new ArrayList<String>();
 
-        for (int i = 1; i <= num; i++) {
+            for (int i = 1; i <= num; i++) {
 
-            NoOfPlacesList.add(i + "");
-        }
+                NoOfPlacesList.add(i + "");
+            }
 
 
         return NoOfPlacesList;

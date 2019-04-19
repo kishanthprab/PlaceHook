@@ -6,41 +6,36 @@
     <group android:checkableBehavior="single">
 
         <item android:id="@+id/nav_Discover"
-            android:icon="@drawable/ic_message"
+            android:icon="@drawable/ic_search_black_24dp"
             android:title="Discover"></item>
 
         <item android:id="@+id/nav_Itinerary"
-            android:icon="@drawable/ic_message"
+            android:icon="@drawable/ic_route"
             android:title="Itinerary Planner"></item>
 
         <item android:id="@+id/nav_Nearby"
-            android:icon="@drawable/ic_message"
+            android:icon="@drawable/ic_nearby"
             android:title="Nearby"></item>
 
         <item android:id="@+id/nav_Navigation"
-            android:icon="@drawable/ic_message"
+            android:icon="@drawable/ic_navigation"
             android:title="Navigation"></item>
 
         <item android:id="@+id/nav_ARNavigation"
-            android:icon="@drawable/ic_message"
+            android:icon="@drawable/ic_augmented_reality"
             android:title="AR Navigation"></item>
 
         <item android:id="@+id/nav_Favourites"
-            android:icon="@drawable/ic_message"
+            android:icon="@drawable/ic_heart"
             android:title="Favourites"></item>
 
-        <item android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_message"
-            android:title="Settings">
-
-        </item>
     </group>
 
     <item android:title="">
         <menu>
 
             <item android:id="@+id/nav_logout"
-                android:icon="@drawable/ic_message"
+                android:icon="@drawable/ic_logout"
                 android:title="Log out">
 
             </item>
