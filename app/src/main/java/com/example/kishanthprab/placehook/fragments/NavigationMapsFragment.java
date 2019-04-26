@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -28,10 +30,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kishanthprab.placehook.DashboardActivity;
+import com.example.kishanthprab.placehook.DataObjects.NavigationPlaceDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.Geocoded_waypoints;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.MyPlaceDirection;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Geometry;
@@ -41,6 +45,7 @@ import com.example.kishanthprab.placehook.Helper.DirectionsJSONParser;
 import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
+import com.example.kishanthprab.placehook.Remote.UberClient;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.ParserPolylineTask;
 import com.google.android.gms.common.api.Status;
@@ -67,6 +72,8 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.uber.sdk.android.rides.RideParameters;
+import com.uber.sdk.android.rides.RideRequestButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,19 +90,22 @@ import retrofit2.Response;
 
 //import com.google.android.gms.location.LocationListener;
 
-public class NavigationMapsFragment extends Fragment implements OnMapReadyCallback {
+public class NavigationMapsFragment extends Fragment implements OnMapReadyCallback,View.OnClickListener {
 
     GoogleMap mMap;
     Marker userCurrentLocation;
-    Marker DestinationMarker = null;
+    Marker destinationMarker = null;
+    Marker originMarker = null;
 
     Location LastLocation = null;
 
-    Address destAddress = null;
-    String destAddressName;
+    NavigationPlaceDetails destinationInfoObject;
+    NavigationPlaceDetails originInfoObject;
 
     private static final int Request_user_Location_code = 2;
-    private static final int AUTOCOMPLETE_REQUEST_CODE = 1123;
+
+    private static final int AUTOCOMPLETE_REQUEST_CODE_FROM = 2112;
+    private static final int AUTOCOMPLETE_REQUEST_CODE_TO = 2212;
 
     final static String TAG = "NavigationFragment";
 
@@ -114,6 +124,14 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
     Polyline polyline;
 
+    //bottom sheet
+    BottomSheetBehavior navi_BottomSheetBehavior;
+    LinearLayout navi_TapActionlayout;
+    View navi_bottomSheet;
+
+    //uber
+    RideRequestButton btn_uberRide;
+
 
     @Nullable
     @Override
@@ -131,16 +149,60 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(getActivity());
 
-        //init components
 
         //init toolbar
-        navmap_toolbar = (Toolbar)view.findViewById(R.id.navMap_toolbar);
-        navMap_toolbar_title =(TextView)view.findViewById(R.id.navMap_toolbar_title);
+        navmap_toolbar = (Toolbar) view.findViewById(R.id.navMap_toolbar);
+        navMap_toolbar_title = (TextView) view.findViewById(R.id.navMap_toolbar_title);
 
-        ((AppCompatActivity)getActivity()).setSupportActionBar(navmap_toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(navmap_toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         navMap_toolbar_title.setText("Navigation");
+
+
+        //init bottomsheet
+        navi_TapActionlayout = (LinearLayout) view.findViewById(R.id.navi_tap_action_layout);
+        navi_bottomSheet = view.findViewById(R.id.navi_bottom_sheet);
+
+        navi_BottomSheetBehavior = (BottomSheetBehavior) BottomSheetBehavior.from(navi_bottomSheet);
+        navi_BottomSheetBehavior.setPeekHeight(150);
+        navi_BottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        navi_BottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+                if (i == BottomSheetBehavior.STATE_COLLAPSED) {
+                    navi_TapActionlayout.setVisibility(View.VISIBLE);
+                }
+
+                if (i == BottomSheetBehavior.STATE_EXPANDED) {
+                    navi_TapActionlayout.setVisibility(View.GONE);
+                }
+
+                if (i == BottomSheetBehavior.STATE_DRAGGING) {
+                    navi_TapActionlayout.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+
+            }
+        });
+
+        navi_TapActionlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (navi_BottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                    navi_BottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+            }
+        });
+
+
+        //inti uberclient
+        UberClient.initiateUberClient();
+        btn_uberRide = (RideRequestButton) view.findViewById(R.id.navi_btn_uberRide);
+
 
         //navigation drawer toggle
         ActionBarDrawerToggle actionbarToggle = new ActionBarDrawerToggle(getActivity(), DashboardActivity.getDrawer(), navmap_toolbar,
@@ -168,8 +230,8 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
         navigation_searchCurrent = (TextView) view.findViewById(R.id.edt_Csearch);
 
 
-        //current locaton search text
-        CLocationsearchText();
+        //destination locaton search text
+        openLocationSearchIntent(navigation_searchCurrent, AUTOCOMPLETE_REQUEST_CODE_TO);
 
         //check permission runtime
         if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -197,132 +259,66 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         }
 
-       /*
-
-        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
-        // and once again when the user makes a selection (for example when calling fetchPlace()).
-        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
-          */
-
-
     }
 
-    private void CLocationsearchText() {
+    //create uberRideRequest
+    private void setUberRide(LatLng pickup,String pickupAddress,LatLng drop,String dropAddress){
 
+        Log.d(TAG, "setUberRide: pickup" +pickupAddress +":" +pickup.toString() + " drop " +dropAddress+":"+drop);
+        RideParameters rideParams = new RideParameters.Builder()
+                // Optional product_id from /v1/products endpoint (e.g. UberX). If not provided, most cost-efficient product will be used
+                //.setProductId("a1111c8c-c720-46c3-8534-2fcdd730040d")
+                .setProductId("666856eb-f007-45bd-a961-6441eb600c98") //for uberzip
+                .setDropoffLocation(
+                        drop.latitude, drop.longitude, "Drop Point", dropAddress)
+                .setPickupLocation(pickup.latitude, pickup.longitude, "Pickup Point", pickupAddress)
+                .build();
 
-        navigation_searchCurrent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "current text clicked", Toast.LENGTH_SHORT).show();
-
-                // Set the fields to specify which types of place data to
-                // return after the user has made a selection.
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME,
-                        Place.Field.LAT_LNG, Place.Field.VIEWPORT, Place.Field.ADDRESS,
-                        Place.Field.TYPES, Place.Field.PHONE_NUMBER);
-
-                // Start the autocomplete intent.
-                Intent intent = new Autocomplete.IntentBuilder(
-                        AutocompleteActivityMode.FULLSCREEN, fields)
-                        .setLocationBias(RectangularBounds.newInstance(new LatLng(6.859629, 79.816731), new LatLng(6.984130, 79.888132)))
-                        // .setTypeFilter(TypeFilter.ADDRESS)
-                        .setCountry("LK")
-                        .build(getActivity());
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-
-            }
-        });
-
-
-        navigation_searchCurrent.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-
-                if (actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || event.getAction() == KeyEvent.ACTION_DOWN
-                        || event.getAction() == KeyEvent.KEYCODE_ENTER) {
-
-                    //execute method for searching
-                    //geolocatePlace();
-                    Log.d(TAG, "onEditorAction: Clicked");
-                }
-                return false;
-            }
-        });
-
-    }
-
-    private void geolocatePlace(LatLng latLng) {
-        Log.d(TAG, "geolocatePlace: geolocation");
-
-        //String searchString = navigation_searchCurrent.getText().toString();
-
-        Geocoder geocoder = new Geocoder(getActivity());
-        List<Address> ListAddresses = new ArrayList<>();
-        try {
-
-            //  ListAddresses = geocoder.getFromLocationName(searchString, 1);
-            ListAddresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-
-
-        } catch (Exception e) {
-
-            Log.d(TAG, "geolocatePlace: Exception" + e.getMessage());
-
-        }
-
-        if (ListAddresses.size() > 0) {
-
-            destAddress = ListAddresses.get(0);
-            String t = destAddress.getAddressLine(0);
-            //navigation_searchCurrent.setText(t);
-            setDestination();
-            Toast.makeText(getActivity(), "address : " + destAddress.toString(), Toast.LENGTH_SHORT).show();
-
-            Log.d(TAG, "geolocatePlace: Found location : " + destAddress.toString());
-        }
-
+        btn_uberRide.setRideParameters(rideParams);
+        btn_uberRide.setSession(UberClient.getNewUberSession());
+        btn_uberRide.loadRideInformation();
 
     }
 
 
-    //setDestination
-    private void setDestination() {
+    //set Marker on map
+    private void setMarkerOnMap(Marker marker, NavigationPlaceDetails placeObj) {
 
-        if (DestinationMarker != null) {
-
-            DestinationMarker.remove();
+        LatLng currentLocation = null;
+        if (marker != null) {
+            marker.remove();
         }
 
-        //LatLng destinationLatlng = new LatLng(destAddress.getLatitude(), destAddress.getLongitude());
+        //set starting Location
+        if (LastLocation != null) {
 
-        LatLng destinationLatlng = new LatLng(
-                Double.parseDouble(CommonGoogle.currentResult.getGeometry().getLocation().getLat()),
-                Double.parseDouble(CommonGoogle.currentResult.getGeometry().getLocation().getLng())
-        );
-
-
-        Bitmap bitmap= null;
-        try {
-            bitmap = Functions.getBitmapFromURL("https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=2|222F3E|FFFFFF");
-
-        } catch (Exception e) {
-
-            Log.d(TAG, "setDestination: bitmap" + "failed" + e);
+            currentLocation = new LatLng(LastLocation.getLatitude(),LastLocation.getLongitude());
+            originMarker = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(LastLocation.getLatitude(), LastLocation.getLongitude()))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.navi_origin))
+                    .title("Start Location"));
         }
 
-        if (bitmap!=null) {
 
-            DestinationMarker = mMap.addMarker(new MarkerOptions()
-                    .position(destinationLatlng)
-                    //.icon(BitmapDescriptorFactory.fromResource(R.drawable.destination))
-                    .icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap,bitmap.getWidth()*4,bitmap.getHeight()*4,false)))
-                    .title(CommonGoogle.currentResult.getName()));
-
+        //set up destination marker
+        if (marker == destinationMarker) {
+            destinationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(placeObj.getLocation())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.navi_destination))
+                    //.icon(BitmapDescriptorFactory.fromBitmap(Bitmap.createScaledBitmap(bitmap,bitmap.getWidth()*4,bitmap.getHeight()*4,false)))
+                    .title(placeObj.getName()));
         }
+
         //route path
-        DrawPath(LastLocation, destinationLatlng); //uses scalars
+        DrawPath(LastLocation, placeObj.getLocation()); //uses scalars
+
+        final String currentAddress = Functions.geolocatePlace(currentLocation,getActivity());
+        final String destAddress = Functions.geolocatePlace(placeObj.getLocation(),getActivity());
+
+        //set uber ride info
+        setUberRide(currentLocation,destAddress,placeObj.getLocation(),placeObj.getAddress());
+       // btn_uberRide.loadRideInformation();
+
 
     }
 
@@ -348,27 +344,17 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                     @Override
                     public void onResponse(Call<MyPlaceDirection> call, Response<MyPlaceDirection> response) {
 
-                        //Log.d(TAG, "onResponse: "+ response.body());
-
                         if (response.isSuccessful()) {
 
                             Log.d(TAG, "onResponse: " + response.body().toString());
-                            Log.d(TAG, "onResponse: " + " scalr response success");
-
-
                             MyPlaceDirection PlaceDirection = response.body();
-
                             String jsonString = Functions.toJSON(PlaceDirection);
 
                             Log.d(TAG, "onResponse: " + jsonString);
 
                             new ParserTask().execute(jsonString);
-                            //ParserPolylineTask pTask = new ParserPolylineTask();
-                            //pTask.execute(mMap,polyline,jsonString);
 
                         }
-
-
                     }
 
                     @Override
@@ -376,6 +362,11 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                         Log.d(TAG, "onFailure: " + "failed" + t.getMessage());
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
+
     }
 
 
@@ -444,7 +435,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                 polylineOptions.addAll(points);
 
                 polylineOptions.width(15);
-                polylineOptions.color(getActivity().getResources().getColor(R.color.colorAccent));
+                polylineOptions.color(getActivity().getResources().getColor(R.color.colorPrimaryDark));
                 polylineOptions.geodesic(true);
 
 
@@ -454,70 +445,6 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
         }
     }
-
-    /*//place details get call
-    private void getPlaceDetails(String placeID) {
-
-        StringBuilder googlePlacesURL = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-
-        googlePlacesURL.append("placeid=" + placeID);
-        googlePlacesURL.append("&fields=");
-        googlePlacesURL.append("address_component,");
-        googlePlacesURL.append("formatted_address,");
-        googlePlacesURL.append("");
-        googlePlacesURL.append("");
-        googlePlacesURL.append("&key=" + getResources().getString(R.string.google_maps_key));
-
-            String url = getURL(LastLocation.getLatitude(), LastLocation.getLongitude(), placeType);
-            googleNearbyService.getNearbyPlaces(url)
-                    .enqueue(new Callback<MyPlaces>() {
-                        @Override
-                        public void onResponse(Call<MyPlaces> call, Response<MyPlaces> response) {
-                            if (response.isSuccessful()) {
-
-
-                                Log.d("response", "susscessfull");
-
-                                for (int i = 0; i < response.body().getResults().length; i++) {
-
-                                    Results googlePlace = response.body().getResults()[i];
-                                    Location placeLocation = googlePlace.getGeometry().getLocation();
-
-                                    String Vicinity = googlePlace.getVicinity();
-                                    LatLng Place_latLng = new LatLng(placeLocation.getLatitude(), placeLocation.getLongitude());
-
-                                    String placID = googlePlace.getPlace_id();
-                                    String PlaceName = googlePlace.getName();
-                                    double rating = Double.parseDouble(googlePlace.getRating());
-
-
-                                    RecyclerListItem listItem = new RecyclerListItem(
-                                            PlaceName,
-                                            rating,
-                                            1.4
-                                    );
-
-                                    listItem.setPlacePhotos(googlePlace.getPhotos());
-
-
-                                    feedList.add(listItem);
-                                    //Log.d("response", "value added " + PlaceName);
-
-                                }
-                                alertDialog.dismiss();
-
-
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<MyPlaces> call, Throwable t) {
-                            Log.d("responseFail", t.getStackTrace().toString());
-                        }
-                    });
-
-    }*/
 
 
 //----------
@@ -560,7 +487,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                     userCurrentLocation = mMap.addMarker(new MarkerOptions()
                             .position(userloc)
                             .title("You are here!")
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.userlocation)));
 
                     // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userloc,21));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userloc, 17));
@@ -609,46 +536,90 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
     }
 
+    private void setResultsInTextView(int resultCode, Intent data, Marker marker) {
+
+        if (resultCode == AutocompleteActivity.RESULT_OK) {
+
+            Place place = Autocomplete.getPlaceFromIntent(data);
+            navigation_searchCurrent.setText("");
+
+            String address = place.getName() + ", " + place.getAddress();
+
+            //setCurrent Result
+            destinationInfoObject = new NavigationPlaceDetails();
+
+            destinationInfoObject.setPlace_id(place.getId());
+            destinationInfoObject.setName(place.getName());
+            destinationInfoObject.setAddress(place.getAddress());
+            destinationInfoObject.setLocation(place.getLatLng());
+
+
+            setMarkerOnMap(marker, destinationInfoObject);
+            navigation_searchCurrent.setText(address);
+
+
+        } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+            // TODO: Handle the error.
+            Status status = Autocomplete.getStatusFromIntent(data);
+            Log.i(TAG, "Place: " + "result error");
+            Log.i(TAG, status.getStatusMessage());
+        } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
+            // The user canceled the operation.
+            Log.i(TAG, "Place: " + "result cancelled");
+        }
+    }
+
+    //open autocomplete search intent
+    private void openLocationSearchIntent(TextView textView, final int code) {
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "textview clicked", Toast.LENGTH_SHORT).show();
+
+                // Set the fields to specify which types of place data to
+                // return after the user has made a selection.
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME,
+                        Place.Field.LAT_LNG, Place.Field.VIEWPORT, Place.Field.ADDRESS,
+                        Place.Field.TYPES, Place.Field.PHONE_NUMBER);
+
+                // Start the autocomplete intent.
+                Intent intent = new Autocomplete.IntentBuilder(
+                        AutocompleteActivityMode.FULLSCREEN, fields)
+                        .setLocationBias(RectangularBounds.newInstance(new LatLng(6.859629, 79.816731), new LatLng(6.984130, 79.888132)))
+                        // .setTypeFilter(TypeFilter.ADDRESS)
+                        .setCountry("LK")
+                        .build(getActivity());
+                startActivityForResult(intent, code);
+
+            }
+        });
+
+        textView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                if (actionId == EditorInfo.IME_ACTION_SEARCH
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || event.getAction() == KeyEvent.ACTION_DOWN
+                        || event.getAction() == KeyEvent.KEYCODE_ENTER) {
+
+                    Log.d(TAG, "onEditorAction: Clicked");
+                }
+                return false;
+            }
+        });
+
+    }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == AutocompleteActivity.RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE_TO) {
 
-                navigation_searchCurrent.setText("");
-                //geolocate
-                //geolocatePlace(place.getLatLng());
+            setResultsInTextView(resultCode, data, destinationMarker);
 
-
-                String DestinationAddress = place.getName() + ", " + place.getAddress();
-                //destAddressName = place.getName();
-
-                CommonGoogle.currentResult = new Result();
-                //setCurrent Result
-                CommonGoogle.currentResult.setPlace_id(place.getId());
-                CommonGoogle.currentResult.setName(place.getName());
-                CommonGoogle.currentResult.setFormatted_address(place.getAddress());
-                CommonGoogle.currentResult.setGeometry(new Geometry());
-                CommonGoogle.currentResult.getGeometry().setLocation(new com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Location());
-                CommonGoogle.currentResult.getGeometry().getLocation().setLat(String.valueOf(place.getLatLng().latitude));
-                CommonGoogle.currentResult.getGeometry().getLocation().setLng(String.valueOf(place.getLatLng().longitude));
-
-                setDestination();
-                navigation_searchCurrent.setText(DestinationAddress);
-
-
-                // Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + ", " + place.getAddress() + ", " + place.getLatLng());
-            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                // TODO: Handle the error.
-                Status status = Autocomplete.getStatusFromIntent(data);
-                Log.i(TAG, "Place: " + "result error");
-                Log.i(TAG, status.getStatusMessage());
-            } else if (resultCode == AutocompleteActivity.RESULT_CANCELED) {
-                // The user canceled the operation.
-                Log.i(TAG, "Place: " + "result cancelled");
-            }
         }
 
         //super.onActivityResult(requestCode, resultCode, data);

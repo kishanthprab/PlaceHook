@@ -27,6 +27,7 @@ import com.example.kishanthprab.placehook.DataObjects.User;
 import com.example.kishanthprab.placehook.Utility.FilterDialog;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
+import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
 import com.example.kishanthprab.placehook.fragments.DiscoverFragment;
 import com.example.kishanthprab.placehook.fragments.ItineraryMapFragment;
 import com.example.kishanthprab.placehook.fragments.ItineraryPlannerFragment;
@@ -83,6 +84,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 nav_header_email = (TextView) findViewById(R.id.nav_header_email);
                 nav_header_name.setText(user.getName());
                 nav_header_email.setText(user.getEmail());
+
+                Functions_Itinerary.userName = user.getName();
 
                 Log.d(TAG, "user values " + user.getName() + user.getEmail());
             }

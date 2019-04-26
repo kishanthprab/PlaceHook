@@ -1,41 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<android.support.design.widget.CoordinatorLayout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.ItineraryMapFragment"
-    >
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/itinMap_toolbar"
+    tools:context=".fragments.ItineraryMapFragment">
+
+
+
+    <android.support.v4.widget.DrawerLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimaryDark"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:textSize="18sp"
-            android:fontFamily="@font/opensansregular"
-            android:layout_gravity="center"
-            android:id="@+id/itinMap_toolbar_title" />
-
-    </android.support.v7.widget.Toolbar>
-
-
-    <fragment
-        android:id="@+id/itineraryMap"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
+        android:id="@+id/drawer"
         android:layout_height="match_parent">
 
+        <FrameLayout
+            android:id="@+id/frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/itinMap_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@color/colorPrimaryDark"
+                    android:elevation="4dp"
+                    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+                    <TextView
+                        android:id="@+id/itinMap_toolbar_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/opensansregular"
+                        android:textColor="#ffffff"
+                        android:textSize="18sp" />
+
+                </android.support.v7.widget.Toolbar>
 
 
+                <fragment
+                    android:id="@+id/itineraryMap"
+                    android:name="com.google.android.gms.maps.SupportMapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"></fragment>
 
-    </fragment>
+        </FrameLayout>
 
-</RelativeLayout>
+    </android.support.v4.widget.DrawerLayout>
+
+
+    <include layout="@layout/bottomsheet_itinerary"></include>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -8,18 +8,19 @@
     android:paddingTop="8dp"
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
-    android:elevation="2dp"
     >
 
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="8dp"
+        >
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorliteWhite"
             android:orientation="vertical">
 
 
@@ -41,8 +42,8 @@
                 android:id="@+id/rev_authorName"
                 android:layout_width="wrap_content"
                 android:layout_height="22dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
                 android:layout_marginTop="5dp"
                 android:paddingLeft="15dp"
                 android:text="author name"
@@ -52,15 +53,16 @@
 
             <LinearLayout
                 android:id="@+id/linearLayout"
-                android:layout_width="312dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
                 android:layout_marginTop="6dp"
                 android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="@+id/rev_imgV_ReviewIcon"
                 app:layout_constraintStart_toEndOf="@+id/rev_profileImage"
                 app:layout_constraintTop_toBottomOf="@+id/rev_authorName">
 
@@ -113,15 +115,15 @@
 
             <TextView
                 android:id="@+id/rev_review_text"
-                android:layout_width="312dp"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginLeft="8dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
                 android:layout_marginTop="6dp"
                 android:paddingLeft="15dp"
                 android:text="review text"
-                android:textAlignment="viewStart"
                 android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="@+id/rev_relativeTime"
                 app:layout_constraintStart_toEndOf="@+id/rev_profileImage"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
@@ -129,13 +131,15 @@
                 android:id="@+id/rev_relativeTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="21dp"
-                android:layout_marginRight="21dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="6dp"
                 android:paddingLeft="15dp"
                 android:text="relative time"
-                android:textStyle="bold"
                 android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rev_review_text" />
 
@@ -144,7 +148,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginTop="2dp"
-                app:layout_constraintEnd_toEndOf="@+id/linearLayout"
+                app:layout_constraintEnd_toEndOf="@+id/rev_relativeTime"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/google" />
 

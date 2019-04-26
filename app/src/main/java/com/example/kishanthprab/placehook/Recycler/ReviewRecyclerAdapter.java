@@ -1,6 +1,7 @@
 package com.example.kishanthprab.placehook.Recycler;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 
 import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Utility.Functions;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
 import java.util.List;
 
@@ -47,6 +49,17 @@ public class ReviewRecyclerAdapter extends RecyclerView.Adapter<ReviewRecyclerAd
         viewHolder.relativeTime.setText(listItem.getRelativeTime());
 
         viewHolder.profileImage.setImageBitmap(Functions.getBitmapFromURL(listItem.getPhotoUrl()));
+
+        if (listItem.getReviewIconType().equals("google")){
+
+            viewHolder.reviewTypeIcon.setImageResource(R.drawable.google);
+
+        }else {
+
+
+            //need to load placehook logo
+            viewHolder.reviewTypeIcon.setImageResource(R.drawable.google);
+        }
 
         double rat = listItem.getGivenRating();
         //setroundColor(0.5, listItem.getRating(), viewHolder);

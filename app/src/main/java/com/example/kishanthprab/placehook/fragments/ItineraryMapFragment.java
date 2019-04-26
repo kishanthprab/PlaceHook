@@ -2,28 +2,31 @@ package com.example.kishanthprab.placehook.fragments;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,13 +37,14 @@ import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Reviews
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.MyPlaceDirection;
 import com.example.kishanthprab.placehook.Helper.DirectionsJSONParser;
 import com.example.kishanthprab.placehook.R;
-import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
+import com.example.kishanthprab.placehook.Recycler.ItinBottomSheetRecyclerAdapter;
+import com.example.kishanthprab.placehook.Recycler.ItinBottomSheetRecyclerListItem;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
-import com.example.kishanthprab.placehook.Utility.PlaceDetailsDialog;
+import com.example.kishanthprab.placehook.PlaceDetailsDialog;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -79,6 +83,16 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
     Toolbar itinMap_toolbar;
     TextView itinMap_toolbar_title;
 
+
+    //bottom sheet
+    BottomSheetBehavior ItinBottomSheetBehavior;
+    LinearLayout ItinTapaAtionlayout;
+    View bottomSheet;
+    RecyclerView bottomsheet_recycler;
+    ItinBottomSheetRecyclerAdapter bottomsheet_recyclerAdapter;
+    ArrayList<ItinBottomSheetRecyclerListItem> directionDetailsList;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -107,6 +121,54 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
         DashboardActivity.getDrawer().addDrawerListener(actionbarToggle);
         actionbarToggle.syncState();
 
+        //init bottomsheet
+        ItinTapaAtionlayout = (LinearLayout) view.findViewById(R.id.itinBottomSheet_tap_action_layout);
+        bottomSheet = view.findViewById(R.id.itinBottomSheet);
+
+        ItinBottomSheetBehavior = (BottomSheetBehavior) BottomSheetBehavior.from(bottomSheet);
+        ItinBottomSheetBehavior.setPeekHeight(150);
+        ItinBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        ItinBottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+                if (i == BottomSheetBehavior.STATE_COLLAPSED) {
+                    ItinTapaAtionlayout.setVisibility(View.VISIBLE);
+                }
+
+                if (i == BottomSheetBehavior.STATE_EXPANDED) {
+                    ItinTapaAtionlayout.setVisibility(View.GONE);
+                }
+
+                if (i == BottomSheetBehavior.STATE_DRAGGING) {
+                    ItinTapaAtionlayout.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+
+            }
+        });
+
+        ItinTapaAtionlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ItinBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                    ItinBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+            }
+        });
+
+
+        //init bottomsheet recycler
+        directionDetailsList = new ArrayList<>();
+        directionDetailsList.clear();
+        bottomsheet_recycler = (RecyclerView) bottomSheet.findViewById(R.id.itin_btmsheetRecyclerView);
+        bottomsheet_recycler.setHasFixedSize(true);
+        bottomsheet_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        bottomsheet_recyclerAdapter = new ItinBottomSheetRecyclerAdapter(directionDetailsList, getActivity());
+        bottomsheet_recycler.setAdapter(bottomsheet_recyclerAdapter);
+
 
         //init google services
         mService = CommonGoogle.getGoogleAPIService();
@@ -114,13 +176,13 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
         if (Functions_Itinerary.itinerayLocation != null) {
             pickedLocation = Functions_Itinerary.itinerayLocation.getLatLng();
-
         }
 
 
         return view;
 
     }
+
 
     public Context returnContext() {
 
@@ -160,7 +222,51 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
         SetMapMarkers();
 
 
+
     }
+
+
+    //load place direction details to recyclerview
+    private void loadRecyclerItems() {
+
+
+
+        final ArrayList<MyPlaceDirection> arrayList = Functions_Itinerary.ItineraryPlacesDirections;
+
+        Log.d(TAG, "loadRecyclerItems: placesdirections is empty"+ arrayList.isEmpty());
+
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                if (!Functions_Itinerary.ItineraryPlacesDirections.isEmpty()) {
+
+                    for (int i = 0; i < arrayList.size(); i++) {
+
+                        ItinBottomSheetRecyclerListItem listItem = new ItinBottomSheetRecyclerListItem(
+                                String.valueOf(i + 1), Functions_Itinerary.AddedPlaces.get(i).getName()
+                                ,String.valueOf(i + 2), Functions_Itinerary.AddedPlaces.get(i+1).getName()
+                                ,arrayList.get(i).getRoutes()[0].getLegs()[0].getDuration().getText()
+                                ,arrayList.get(i).getRoutes()[0].getLegs()[0].getDistance().getText()
+                        );
+
+                        directionDetailsList.add(listItem);
+
+                    }
+
+                    bottomsheet_recyclerAdapter.notifyDataSetChanged();
+
+                }else {
+
+                    handler.post(this);
+                }
+
+            }
+        }, 2000);
+
+    }
+
 
     //random place numbers
     private ArrayList<Integer> randomPlaceNumber(int totNumOfPlaces) {
@@ -221,12 +327,12 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                             Log.d(TAG, "onResponse: " + "success");
 
+
                             Functions_Itinerary.CurrentPlaceDetails = response.body();
 
                             //String jsonString = Functions.toJSON(response.body().toString());
 
                             Log.d(TAG, "onResponse: " + Functions_Itinerary.CurrentPlaceDetails.getResult().toString());
-
 
 
                         }
@@ -255,6 +361,8 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
         Functions_Itinerary.AddedMarkersWithPlaceID = new HashMap<>();
         Functions_Itinerary.AddedMarkersWithPlaceID.clear();
 
+        Functions_Itinerary.AddedPlaces = new ArrayList<>();
+        Functions_Itinerary.AddedPlaces.clear();
 
         for (int i = 0; i < placeIndexes.size(); i++) {
 
@@ -281,6 +389,8 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                 Functions_Itinerary.AddedMarkers.add(m);
                 Functions_Itinerary.AddedMarkersWithPlaceID.put(placeId, m);
+                Functions_Itinerary.AddedPlaces.add(i,Functions_Itinerary.ItineraryPlacesResults.get(plcIndex));
+
             }
         }
 
@@ -301,10 +411,12 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
             Log.d(TAG, "SetMapMarkers: " + "origin : " + origin + " , dest :" + destination);
 
-            DrawPath(origin, destination,0);
+            DrawPath(origin, destination, 0);
 
         }
 
+        //load recycler itmes
+        loadRecyclerItems();
 
     }
 
@@ -326,7 +438,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
             }
         }
 
-        final DialogFragment dialog = PlaceDetailsDialog.newInstance();
+        final DialogFragment dialog = PlaceDetailsDialog.newInstance(getActivity());
 
         //need to set callback
         ((PlaceDetailsDialog) dialog).setCallback(new PlaceDetailsDialog.Callback() {
@@ -381,15 +493,16 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                                             review.getRelative_time_description(),
                                             review.getText()
                                     );
+                                    reviewListItem.setReviewIconType("google");
 
-                                    Log.d(TAG, "Review "+i+": "+review.toString());
+                                    Log.d(TAG, "Review " + i + ": " + review.toString());
                                     reviewsList.add(reviewListItem);
 
 
                                 }
 
 
-                            }else {
+                            } else {
                                 txt_numOfReviews.setText("No Reviews");
                             }
 
@@ -413,7 +526,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                     @Override
                     public void run() {
 
-                        if (Functions_Itinerary.CurrentPlaceDetails!= null){
+                        if (Functions_Itinerary.CurrentPlaceDetails != null) {
                             Bitmap bitmap = null;
                             try {
                                 //  bitmap = Functions.getBitmapFromRedirectedURL("https://lh4.googleusercontent.com/-1wzlVdxiW14/USSFZnhNqxI/AAAAAAAABGw/YpdANqaoGh4/s1600-w400/Google%2BSydney");
@@ -433,13 +546,12 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                                 imageView.setImageBitmap(bitmap);
                             }
 
-                        }else {
+                        } else {
                             handler.post(this);
                         }
 
                     }
-                },500);
-
+                }, 500);
 
 
             }
@@ -453,6 +565,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
     }
 
+
     void assignArray(ArrayList<ReviewRecyclerListItem> list) {
 
         list = new ArrayList<>();
@@ -461,9 +574,12 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
     private Bitmap createBitmapIcon(int num) {
 
+        //String url = "https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=" + num + "|222F3E|FFFFFF";
+        String url = "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_black" + num + ".png";
+
         Bitmap bitmap = null;
         try {
-            bitmap = Functions.getBitmapFromURL("https://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=" + num + "|222F3E|FFFFFF");
+            bitmap = Functions.getBitmapFromURL(url);
 
         } catch (Exception e) {
 
@@ -500,7 +616,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
 
                             //MyPlaceDirection PlaceDirection = response.body();
-                            Functions_Itinerary.ItineraryPlacesDirections.add(index,response.body());
+                            Functions_Itinerary.ItineraryPlacesDirections.add(index, response.body());
                             String jsonString = Functions.toJSON(Functions_Itinerary.ItineraryPlacesDirections.get(index));
 
                             Log.d(TAG, "onResponse: Place Direction results " + jsonString);

@@ -93,6 +93,9 @@ dependencies {
     //circular imageview
     implementation 'de.hdodenhof:circleimageview:3.0.0'
 
+    //uber lib
+    implementation 'com.uber.sdk:rides-android:0.5.3'
+
 
 }
 

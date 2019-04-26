@@ -12,6 +12,16 @@ public class ReviewRecyclerListItem {
     String relativeTime;
     String review_text;
 
+    public String getReviewIconType() {
+        return reviewIconType;
+    }
+
+    public void setReviewIconType(String reviewIconType) {
+        this.reviewIconType = reviewIconType;
+    }
+
+    String reviewIconType;
+
     public ReviewRecyclerListItem(String authorName, double givenRating, String photoUrl, String relativeTime, String review_text) {
         this.authorName = authorName;
         this.givenRating = givenRating;

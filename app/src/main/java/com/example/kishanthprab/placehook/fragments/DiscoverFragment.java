@@ -57,6 +57,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import dmax.dialog.SpotsDialog;
@@ -68,7 +70,7 @@ import retrofit2.Response;
 public class DiscoverFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private RecyclerView.Adapter recyclerAdapter;
+    private RecyclerAdapter recyclerAdapter;
 
     private List<RecyclerListItem> feedList;
 

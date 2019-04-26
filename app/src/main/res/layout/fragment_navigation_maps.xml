@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -29,25 +29,31 @@
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@+id/navMap_toolbar"
         android:layout_alignParentLeft="true"
         android:background="@color/gray"
         android:elevation="10dp"
         android:orientation="vertical"
         map:layout_constraintEnd_toEndOf="@id/navMap_toolbar"
+        map:layout_constraintHorizontal_bias="0.0"
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toBottomOf="@+id/navMap_toolbar">
 
         <LinearLayout
             android:id="@+id/linear1"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
-            android:padding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:padding="5dp"
+            android:layout_marginLeft="22dp"
+            android:layout_marginRight="22dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -69,18 +75,47 @@
 
         </LinearLayout>
 
-        <fragment
-            android:id="@+id/navigationMap"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
+        <android.support.design.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        </fragment>
+            <android.support.v4.widget.DrawerLayout
+                android:id="@+id/navi_drawerLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <FrameLayout
+                    android:id="@+id/navi_frameLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <fragment
+                        android:id="@+id/navigationMap"
+                        android:name="com.google.android.gms.maps.SupportMapFragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:layout="@layout/fragment_navigation_maps"
+                        map:layout_constraintTop_toBottomOf="@+id/linearLayout3">
+
+                    </fragment>
+
+
+
+                </FrameLayout>
+
+            </android.support.v4.widget.DrawerLayout>
+
+            <include layout="@layout/bottomsheet_navigation"></include>
+
+
+        </android.support.design.widget.CoordinatorLayout>
+
+
+
     </LinearLayout>
 
 
 
 
 
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

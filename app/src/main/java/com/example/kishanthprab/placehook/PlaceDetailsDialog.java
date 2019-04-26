@@ -1,12 +1,10 @@
-package com.example.kishanthprab.placehook.Utility;
+package com.example.kishanthprab.placehook;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
+import android.support.design.button.MaterialButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,8 +15,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerAdapter;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 
@@ -35,17 +33,20 @@ public class PlaceDetailsDialog extends DialogFragment implements View.OnClickLi
     TextView txt_placeName, txt_totRating, txt_distance, txt_address, txt_numOfReviews;
     ImageView imgV_placePhoto;
 
+    MaterialButton btn_addReview;
+
     RecyclerView review_recyclerView;
     ReviewRecyclerAdapter review_recyclerAdapter;
 
     ArrayList<ReviewRecyclerListItem> reviewsArrayList;
 
-    Context mContext =null;
+    static Context mContext =null;
 
     //public
 
-    public static PlaceDetailsDialog newInstance() {
+    public static PlaceDetailsDialog newInstance(Context context) {
 
+        mContext = context;
         return new PlaceDetailsDialog();
     }
 
@@ -75,6 +76,10 @@ public class PlaceDetailsDialog extends DialogFragment implements View.OnClickLi
         imgV_placePhoto = (ImageView) view.findViewById(R.id.plcDetails_imgV);
 
 
+        btn_addReview = (MaterialButton)view.findViewById(R.id.plcDetails_btn_addReview);
+
+
+        btn_addReview.setOnClickListener(this);
         close.setOnClickListener(this);
         navigate.setOnClickListener(this);
 
@@ -116,7 +121,38 @@ public class PlaceDetailsDialog extends DialogFragment implements View.OnClickLi
                 // dismiss();
                 break;
 
+            case R.id.plcDetails_btn_addReview:
+
+                //dismiss();
+
+                Toast.makeText(getActivity(), "button clicked", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, "onClick: review button clicked" );
+
+                createReviewDialog();
+
+                break;
+
+
         }
+
+    }
+
+//initiate review dialog
+    private void createReviewDialog(){
+
+        DialogFragment dialogFragment = ReviewDialog.newInstance(mContext);
+        ((ReviewDialog) dialogFragment).setCallback(new ReviewDialog.Callback() {
+            @Override
+            public void onActionClick(ImageView placeImage, TextView placeName) {
+
+                placeImage.setImageDrawable(imgV_placePhoto.getDrawable());
+                placeName.setText(txt_placeName.getText());
+
+            }
+
+        });
+
+        dialogFragment.show(getChildFragmentManager(),"reviewDialog");
 
     }
 
