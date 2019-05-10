@@ -97,4 +97,10 @@ public class UserReview {
     public void setUnixTime(String unixTime) {
         this.unixTime = unixTime;
     }
+
+
+    @Override
+    public String toString() {
+        return "PlaceHookUserReview [author_name = "+authorName+", rating = "+rating+", text = "+reviewText+", time = "+time+"]";
+    }
 }

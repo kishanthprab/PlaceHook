@@ -2,6 +2,7 @@ package com.example.kishanthprab.placehook;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
@@ -98,6 +99,13 @@ public class PlaceDetailsDialog extends DialogFragment implements View.OnClickLi
         callback.onActionCLickForAllViews(txt_placeName, txt_totRating, txt_address, txt_numOfReviews,reviewsArrayList);
         callback.setImageView(imgV_placePhoto);
 
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                review_recyclerAdapter.notifyDataSetChanged();
+            }
+        },500);
 
         return view;
     }

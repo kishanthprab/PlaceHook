@@ -56,9 +56,7 @@ public class ReviewRecyclerAdapter extends RecyclerView.Adapter<ReviewRecyclerAd
 
         }else {
 
-
-            //need to load placehook logo
-            viewHolder.reviewTypeIcon.setImageResource(R.drawable.google);
+            viewHolder.reviewTypeIcon.setImageResource(R.drawable.applogo);
         }
 
         double rat = listItem.getGivenRating();

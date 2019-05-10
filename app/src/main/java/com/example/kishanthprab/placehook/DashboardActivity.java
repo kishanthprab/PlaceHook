@@ -156,11 +156,13 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                         .commit();
                 Toast.makeText(this, "AR Navigation", Toast.LENGTH_SHORT).show();
                 break;
+/*
 
             case R.id.nav_Favourites:
 
                 Toast.makeText(this, "Favourites", Toast.LENGTH_SHORT).show();
                 break;
+*/
 
             case R.id.nav_logout:
                 Toast.makeText(this, "Sign out", Toast.LENGTH_SHORT).show();

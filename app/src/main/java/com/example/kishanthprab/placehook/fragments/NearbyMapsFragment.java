@@ -2,8 +2,10 @@ package com.example.kishanthprab.placehook.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
 import android.content.Context;
 import android.location.Location;
@@ -16,6 +18,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -33,8 +36,11 @@ import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 import com.example.kishanthprab.placehook.R;
+import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
+import com.example.kishanthprab.placehook.Utility.FilterDialog;
+import com.example.kishanthprab.placehook.Utility.Functions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -54,13 +60,15 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
+public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener {
 
     GoogleMap mMap;
 
@@ -69,7 +77,9 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
 
     Toolbar nearby_toolbar;
     TextView nearby_toolbar_title;
+    ImageView nearby_toolbar_filterMenu;
 
+    AlertDialog spotsDialog;
 
 
     private static final int Request_user_Location_code = 2;
@@ -81,6 +91,8 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
 
+    HashMap<String, MyPlaces> googlePlacesResults;
+
 
     @Nullable
     @Override
@@ -88,14 +100,19 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
 
         View view = inflater.inflate(R.layout.fragment_nearby_maps, container, false);
 
+
         //init components
 
         //init toolbar
-        nearby_toolbar = (Toolbar)view.findViewById(R.id.nearbyMap_toolbar);
-        nearby_toolbar_title =(TextView)view.findViewById(R.id.nearbyMap_toolbar_title);
+        nearby_toolbar = (Toolbar) view.findViewById(R.id.nearbyMap_toolbar);
+        nearby_toolbar_title = (TextView) view.findViewById(R.id.nearbyMap_toolbar_title);
+        nearby_toolbar_filterMenu = (ImageView) view.findViewById(R.id.nearbyMap_toolbar_filterMenu);
 
-        ((AppCompatActivity)getActivity()).setSupportActionBar(nearby_toolbar);
+        nearby_toolbar_filterMenu.setOnClickListener(this);
+
+        ((AppCompatActivity) getActivity()).setSupportActionBar(nearby_toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
 
         nearby_toolbar_title.setText("Nearby");
 
@@ -108,6 +125,17 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.nearbyMap);
         mapFragment.getMapAsync(this);
+
+        //init google services
+        mService = CommonGoogle.getGoogleAPIService();
+
+        //init list of places with types
+        googlePlacesResults = new HashMap<String, MyPlaces>();
+        googlePlacesResults.clear();
+
+        //loading dialog
+        spotsDialog = Functions.spotsDialog(getActivity());
+        spotsDialog.setMessage("Loading please wait...");
 
 
         return view;
@@ -243,40 +271,114 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
 
         }
 
-        /*
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(new LatLng(23,12));
-        markerOptions.title("Current location");
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.user));
-
-        mMap.addMarker(markerOptions);
-        */
-
-        /*
-        final Handler handler = new Handler();
-
-        Runnable run = new Runnable() {
-            @Override
-            public void run() {
-
-
-
-
-                    handler.postDelayed(this, 2000);
-                    nearbyPlace("hospital");
-
-
-            }
-        };
-
-        handler.post(run);
-        */
-
 
         // nearbyPlace("hospital");
 
     }
 
+    //get UrlString
+    private String getURL(double latitude, double longitude, int radius, String placeType) {
+
+        StringBuilder googlePlacesURL = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+
+        googlePlacesURL.append("location=" + latitude + "," + longitude);
+        googlePlacesURL.append("&radius=" + radius);
+        googlePlacesURL.append("&type=" + placeType);
+        googlePlacesURL.append("&key=" + getResources().getString(R.string.google_maps_key));
+
+        Log.d("getURl", googlePlacesURL.toString());
+
+
+        return googlePlacesURL.toString();
+    }
+
+    //nearby place get call
+    private void nearbyPlace(int radius, final String placeType) {
+
+
+        spotsDialog.show();
+
+
+        if (LastLocation != null) {
+
+            String url = getURL(LastLocation.getLatitude(), LastLocation.getLongitude(), radius, placeType);
+            mService.getNearbyPlaces(url)
+                    .enqueue(new Callback<MyPlaces>() {
+                        @Override
+                        public void onResponse(Call<MyPlaces> call, Response<MyPlaces> response) {
+
+                            if (response.isSuccessful()) {
+
+                                Log.d("response", "susscessfull");
+
+                                googlePlacesResults.put(placeType, response.body());
+
+                                addMapMarkers(placeType, response.body());
+
+                                spotsDialog.dismiss();
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<MyPlaces> call, Throwable t) {
+                            Log.d("responseFail", t.getStackTrace().toString());
+                        }
+                    });
+        }
+
+    }
+
+
+    private void addMapMarkers(String placetype, MyPlaces places) {
+
+        if (setMapIcon(placetype) == 0) {
+            Toast.makeText(getActivity(), "marker icon not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        MarkerOptions markerOptions = new MarkerOptions();
+
+        for (int i = 0; i < places.getResults().length; i++) {
+
+            LatLng latLng = new LatLng(Double.parseDouble(places.getResults()[i].getGeometry().getLocation().getLat()),
+                    Double.parseDouble(places.getResults()[i].getGeometry().getLocation().getLng()));
+
+            markerOptions.position(latLng);
+            markerOptions.title(places.getResults()[i].getName());
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(setMapIcon(placetype)));
+
+            mMap.addMarker(markerOptions);
+        }
+
+
+    }
+
+    private int setMapIcon(String placeType) {
+
+        int val = 0;
+        switch (placeType) {
+
+            case "bus_station":
+
+                break;
+
+            case "restaurant":
+                break;
+
+            case "cafe":
+                val = R.drawable.marker_coffeeshop;
+                break;
+
+            case "shopping_mall":
+                val = R.drawable.marker_shopping;
+                break;
+
+        }
+
+        return val;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -319,5 +421,45 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+
+    @Override
+    public void onClick(View v) {
+
+        switch (v.getId()) {
+
+            case R.id.nearbyMap_toolbar_filterMenu:
+
+                showFilterMenu();
+
+                Toast.makeText(getActivity(), "Filter menu clicked", Toast.LENGTH_SHORT).show();
+                break;
+
+        }
+
+    }
+
+
+    private void showFilterMenu() {
+
+        DialogFragment filterDialog = FilterDialog.newInstance();
+
+        ((FilterDialog) filterDialog).setCallback(new FilterDialog.Callback() {
+            @Override
+            public void onActionClick(HashMap<String, Boolean> checkBoxValues, int seekbarValue) {
+
+                mMap.clear();
+                for (String key : checkBoxValues.keySet()) {
+
+                    nearbyPlace(seekbarValue, key);
+
+                    Log.d(TAG, "onActionClick: key" + key + " value: " + checkBoxValues.get(key));
+
+                }
+
+            }
+        });
+
+        filterDialog.show(getChildFragmentManager(), "FilterMenu");
+    }
 
 }

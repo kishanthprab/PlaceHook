@@ -289,8 +289,10 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
             marker.remove();
         }
 
+
         //set starting Location
         if (LastLocation != null) {
+
 
             currentLocation = new LatLng(LastLocation.getLatitude(),LastLocation.getLongitude());
             originMarker = mMap.addMarker(new MarkerOptions()

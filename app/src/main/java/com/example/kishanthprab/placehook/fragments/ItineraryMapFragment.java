@@ -35,10 +35,12 @@ import com.example.kishanthprab.placehook.DataObjects.ItinerarysearchDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.MyPlaceDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Reviews;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDirectionModels.MyPlaceDirection;
+import com.example.kishanthprab.placehook.DataObjects.UserReview;
 import com.example.kishanthprab.placehook.Helper.DirectionsJSONParser;
 import com.example.kishanthprab.placehook.R;
 import com.example.kishanthprab.placehook.Recycler.ItinBottomSheetRecyclerAdapter;
 import com.example.kishanthprab.placehook.Recycler.ItinBottomSheetRecyclerListItem;
+import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
@@ -56,11 +58,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -91,6 +100,9 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
     RecyclerView bottomsheet_recycler;
     ItinBottomSheetRecyclerAdapter bottomsheet_recyclerAdapter;
     ArrayList<ItinBottomSheetRecyclerListItem> directionDetailsList;
+
+    ArrayList<ReviewRecyclerListItem> recyclerReviewsList;
+
 
 
     @Nullable
@@ -222,7 +234,6 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
         SetMapMarkers();
 
 
-
     }
 
 
@@ -230,10 +241,9 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
     private void loadRecyclerItems() {
 
 
-
         final ArrayList<MyPlaceDirection> arrayList = Functions_Itinerary.ItineraryPlacesDirections;
 
-        Log.d(TAG, "loadRecyclerItems: placesdirections is empty"+ arrayList.isEmpty());
+        Log.d(TAG, "loadRecyclerItems: placesdirections is empty" + arrayList.isEmpty());
 
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -246,9 +256,9 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                         ItinBottomSheetRecyclerListItem listItem = new ItinBottomSheetRecyclerListItem(
                                 String.valueOf(i + 1), Functions_Itinerary.AddedPlaces.get(i).getName()
-                                ,String.valueOf(i + 2), Functions_Itinerary.AddedPlaces.get(i+1).getName()
-                                ,arrayList.get(i).getRoutes()[0].getLegs()[0].getDuration().getText()
-                                ,arrayList.get(i).getRoutes()[0].getLegs()[0].getDistance().getText()
+                                , String.valueOf(i + 2), Functions_Itinerary.AddedPlaces.get(i + 1).getName()
+                                , arrayList.get(i).getRoutes()[0].getLegs()[0].getDuration().getText()
+                                , arrayList.get(i).getRoutes()[0].getLegs()[0].getDistance().getText()
                         );
 
                         directionDetailsList.add(listItem);
@@ -257,7 +267,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                     bottomsheet_recyclerAdapter.notifyDataSetChanged();
 
-                }else {
+                } else {
 
                     handler.post(this);
                 }
@@ -389,7 +399,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                 Functions_Itinerary.AddedMarkers.add(m);
                 Functions_Itinerary.AddedMarkersWithPlaceID.put(placeId, m);
-                Functions_Itinerary.AddedPlaces.add(i,Functions_Itinerary.ItineraryPlacesResults.get(plcIndex));
+                Functions_Itinerary.AddedPlaces.add(i, Functions_Itinerary.ItineraryPlacesResults.get(plcIndex));
 
             }
         }
@@ -450,6 +460,10 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
             @Override
             public void onActionCLickForAllViews(final TextView txt_placeName, final TextView txt_totRating, final TextView txt_address, final TextView txt_numOfReviews, final ArrayList<ReviewRecyclerListItem> reviewsList) {
 
+                recyclerReviewsList = new ArrayList<>();
+                recyclerReviewsList.clear();
+
+
                 final Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -457,6 +471,11 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
                         if (Functions_Itinerary.CurrentPlaceDetails != null) {
 
+                            //get Reviews  from firebase
+                            retrieveReviewsFirebase(Functions_Itinerary.CurrentPlaceDetails.getResult().getPlace_id());
+
+
+                            //get Reviews from google
                             String name = Functions_Itinerary.CurrentPlaceDetails.getResult().getName();
                             String totRating = Functions_Itinerary.CurrentPlaceDetails.getResult().getRating();
                             String NoOfTotalRating = Functions_Itinerary.CurrentPlaceDetails.getResult().getUser_ratings_total();
@@ -466,6 +485,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                             txt_address.setText(address);
                             txt_totRating.setText(totRating + "/5");
                             txt_numOfReviews.setText("Reviews");
+
 
                             assignArray(reviewsList);
 
@@ -496,17 +516,33 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                                     reviewListItem.setReviewIconType("google");
 
                                     Log.d(TAG, "Review " + i + ": " + review.toString());
-                                    reviewsList.add(reviewListItem);
+
+                                    recyclerReviewsList.add(reviewListItem);
 
 
                                 }
 
 
+
+                                final ReviewRecyclerListItem R_ListItem = new ReviewRecyclerListItem(
+                                        "Prabakaran Kishanth",
+                                        4.5,
+                                        "https://wingslax.com/wp-content/uploads/2017/12/no-image-available.png",
+                                        "1 month ago",
+                                        "superb"
+                                );
+                                R_ListItem.setReviewIconType("placeHook");
+
+                                userReviewsList.add(R_ListItem);
+
+
+
+                                reviewsList.addAll(recyclerReviewsList);
+
                             } else {
+
                                 txt_numOfReviews.setText("No Reviews");
                             }
-
-
                         } else {
 
                             handler.post(this);
@@ -565,6 +601,101 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
     }
 
+
+    ArrayList<ReviewRecyclerListItem> userReviewsList;
+
+    //get reviews from firebase
+    private void retrieveReviewsFirebase(String placeId) {
+
+        userReviewsList = new ArrayList<>();
+
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference userReviewsRef = rootRef.child("Reviews").child(mAuth.getUid()).child(placeId);
+
+        userReviewsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+
+                    UserReview review = dataSnapshot.getValue(UserReview.class);
+
+                    Log.d(TAG, "onDataChange: time " + calculateRelativeTime(Long.parseLong(review.getUnixTime())));
+
+                    ReviewRecyclerListItem reviewListItem = new ReviewRecyclerListItem(
+                            review.getAuthorName(),
+                            Double.parseDouble(review.getRating()),
+                            "https://wingslax.com/wp-content/uploads/2017/12/no-image-available.png",
+                            calculateRelativeTime(Long.parseLong(review.getUnixTime())),
+                            review.getReviewText()
+                    );
+
+                    Log.d(TAG, "Review  placehook " + review.toString());
+                    reviewListItem.setReviewIconType("placeHook");
+
+
+                    //recyclerReviewsList.add(reviewListItem);
+                    userReviewsList.add(reviewListItem);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                Log.d(TAG, "onCancelled: error firebase" + databaseError.getDetails());
+            }
+        });
+
+
+    }
+
+    //to Calculate relative time from epochtime
+    private String calculateRelativeTime(long time) {
+
+        int unixTimeSec = Integer.parseInt(String.valueOf((Calendar.getInstance().getTimeInMillis() - time) / 1000));
+
+        Log.d(TAG, "calculateRelativeTime: sec" + unixTimeSec);
+
+        int minInSec = 60;
+        int hourInSec = minInSec * 60;
+        int dayInSec = hourInSec * 24;
+        int weekInSec = dayInSec * 7;
+        int monthInSec = dayInSec * 30;
+        int yearInSec = dayInSec * 365;
+
+
+        if (unixTimeSec >= yearInSec) {
+            int i = unixTimeSec / yearInSec;
+            return (i == 1) ? "a year ago" : i + " years ago";
+
+        } else if (unixTimeSec >= monthInSec) {
+            int i = unixTimeSec / monthInSec;
+            return (i == 1) ? "a month ago" : i + " months ago";
+
+        } else if (unixTimeSec >= weekInSec) {
+            int i = unixTimeSec / weekInSec;
+            return (i == 1) ? "a week ago" : i + " weeks ago";
+
+        } else if (unixTimeSec >= dayInSec) {
+            int i = unixTimeSec / dayInSec;
+            return (i == 1) ? "a day ago" : i + " days ago";
+
+        } else if (unixTimeSec >= hourInSec) {
+            int i = unixTimeSec / hourInSec;
+            return (i == 1) ? "a hour ago" : i + " hours ago";
+
+        } else if (unixTimeSec >= minInSec) {
+            int i = unixTimeSec / minInSec;
+            return (i == 1) ? "a minute ago" : i + " minutes ago";
+
+        } else {
+            return unixTimeSec + " seconds ago";
+        }
+
+
+    }
 
     void assignArray(ArrayList<ReviewRecyclerListItem> list) {
 

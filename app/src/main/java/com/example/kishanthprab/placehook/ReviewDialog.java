@@ -1,5 +1,6 @@
 package com.example.kishanthprab.placehook;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,7 +25,10 @@ import com.example.kishanthprab.placehook.DataObjects.UserReview;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerAdapter;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
+import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -45,6 +49,7 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
     TextView txt_placeName, txt_reviewText;
     ImageView imgv_place;
 
+    AlertDialog alertDialog;
 
     Spinner review_ratingcount;
 
@@ -82,6 +87,8 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
         review_ratingcount = (Spinner) view.findViewById(R.id.reviewDialog_spinner_rating);
         imgv_place = (ImageView) view.findViewById(R.id.reviewDialog_image);
 
+        alertDialog = Functions.spotsDialog(mContext);
+        alertDialog.setTitle("Saving Review Please wait...");
 
         close.setOnClickListener(this);
         save.setOnClickListener(this);
@@ -110,7 +117,7 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
                 break;
 
             case R.id.reviewDialog_done:
-
+                alertDialog.show();
                 storeReviewtoFirebase();
 
                 break;
@@ -178,8 +185,24 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
             reviewObj.setTime(currentTime.getTime().toString());
             reviewObj.setUnixTime(String.valueOf(currentTime.getTimeInMillis()));
 
-            reviewRef.setValue(reviewObj);
+            //store review details to firebase
+            reviewRef.setValue(reviewObj).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    alertDialog.dismiss();
+
+                    Toast.makeText(getActivity(), "Review saved successfully", Toast.LENGTH_SHORT).show();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    alertDialog.dismiss();
+                    Toast.makeText(getActivity(), "Can not save review", Toast.LENGTH_SHORT).show();
+                }
+            });
+
             Log.d(TAG, "storeReviewtoFirebase: success");
+
 
         }
 

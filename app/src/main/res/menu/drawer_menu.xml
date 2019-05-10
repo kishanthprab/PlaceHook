@@ -25,9 +25,6 @@
             android:icon="@drawable/ic_augmented_reality"
             android:title="AR Navigation"></item>
 
-        <item android:id="@+id/nav_Favourites"
-            android:icon="@drawable/ic_heart"
-            android:title="Favourites"></item>
 
     </group>
 
