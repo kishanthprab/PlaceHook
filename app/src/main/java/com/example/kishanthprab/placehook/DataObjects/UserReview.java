@@ -1,6 +1,10 @@
 package com.example.kishanthprab.placehook.DataObjects;
 
+import android.content.ContentValues;
+
+import com.example.kishanthprab.placehook.DB.DB_PlaceHook;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.Location;
+import com.google.firebase.database.DataSnapshot;
 
 public class UserReview {
 
@@ -97,6 +101,7 @@ public class UserReview {
     public void setUnixTime(String unixTime) {
         this.unixTime = unixTime;
     }
+
 
 
     @Override

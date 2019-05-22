@@ -199,7 +199,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
         });
 
 
-        //inti uberclient
+        //initiate uberclient
         UberClient.initiateUberClient();
         btn_uberRide = (RideRequestButton) view.findViewById(R.id.navi_btn_uberRide);
 
@@ -215,6 +215,15 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
                 .findFragmentById(R.id.navigationMap);
         mapFragment.getMapAsync(this);
 
+
+        /*//fragment transaction
+        Bundle arguments = getArguments();
+        String desired_string = arguments.getString("key","no");
+
+        if (!desired_string.equals("no")){
+
+            Log.d(TAG, "onCreateView: value is"+desired_string );
+        }*/
 
         return view;
     }

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -95,15 +96,16 @@ public class PlaceDetailsFragment extends Fragment implements View.OnClickListen
 
             case R.id.plcDetails_navigate:
 
-                // callback.onActionClick("Whatever");
-                //callback.onActionClick(txt_placeName);
-                // dismiss();
+                getChildFragmentManager().beginTransaction().remove(this);
+
 
                 break;
 
         }
 
     }
+
+
 
     public interface Callback {
 
@@ -118,6 +120,7 @@ public class PlaceDetailsFragment extends Fragment implements View.OnClickListen
                 TextView txt_numOfReviews
 
         );
+        void onNavigationButtonClicked();
 
     }
 

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerAdapter;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
+import com.example.kishanthprab.placehook.fragments.NavigationMapsFragment;
 
 import java.util.ArrayList;
 
@@ -123,10 +125,19 @@ public class PlaceDetailsDialog extends DialogFragment implements View.OnClickLi
 
             case R.id.plcDetails_navigate:
 
-                // callback.onActionClick("Whatever");
-                //callback.onActionClick(txt_placeName);
+                /*NavigationMapsFragment fragment = new NavigationMapsFragment();
+                Bundle arguments = new Bundle();
+                arguments.putString( "key" , "Value");
+                fragment.setArguments(arguments);
 
-                // dismiss();
+                FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+                ft.add(fragment,"")
+                ft.commit();
+*/
+
+
+                dismiss();
+
                 break;
 
             case R.id.plcDetails_btn_addReview:

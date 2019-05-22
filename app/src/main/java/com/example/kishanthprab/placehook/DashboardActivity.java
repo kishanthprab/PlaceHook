@@ -1,14 +1,17 @@
 package com.example.kishanthprab.placehook;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,11 +26,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kishanthprab.placehook.DB.DB_PlaceHook;
+import com.example.kishanthprab.placehook.DB.SQLiteDB_helper;
 import com.example.kishanthprab.placehook.DataObjects.User;
+import com.example.kishanthprab.placehook.DataObjects.UserReview;
+import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Utility.FilterDialog;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
 import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
+import com.example.kishanthprab.placehook.fragments.ARFragment;
 import com.example.kishanthprab.placehook.fragments.DiscoverFragment;
 import com.example.kishanthprab.placehook.fragments.ItineraryMapFragment;
 import com.example.kishanthprab.placehook.fragments.ItineraryPlannerFragment;
@@ -38,8 +46,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -55,6 +67,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     FirebaseAuth FireAuth;
     FirebaseAuth.AuthStateListener FireAuthStateListener;
+
 
     TextView nav_header_name, nav_header_email;
 
@@ -97,6 +110,14 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         });
 
 
+        //initiate DB and helper
+        //DBHelper = new SQLiteDB_helper(this);
+        //myDB = DBHelper.getWritableDatabase();
+
+
+        retrieveAllReviewsFirebase();
+
+
         if (savedInstanceState == null) {
 
             //opens this fragment immediately
@@ -104,6 +125,52 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                     new DiscoverFragment()).commit();
             navigationView.setCheckedItem(R.id.nav_Discover);
         }
+
+
+    }
+
+
+    //get reviews from firebase
+    public static void retrieveAllReviewsFirebase() {
+
+        DatabaseReference userReviewsRef = FireDBUtil.getDatabaseReference("Reviews");
+       /* DatabaseReference userReviewsRef = rootRef.child("Reviews")
+                .child(mAuth.getUid());*/
+
+
+        userReviewsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
+                if (dataSnapshot.exists()) {
+
+                    Functions_Itinerary.appUserReviews = new ArrayList<>();
+                    Functions_Itinerary.appUserReviews.clear();
+
+                    for (DataSnapshot users : dataSnapshot.getChildren()) {
+
+
+                        for (DataSnapshot userReview : users.getChildren()) {
+
+                            Functions_Itinerary.appUserReviews.add(userReview.getValue(UserReview.class));
+
+                            Log.d(TAG, "Review  placehook " + userReview.getValue(UserReview.class).toString());
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                Log.d(TAG, "onCancelled: error firebase" + databaseError.getDetails());
+            }
+        });
 
 
     }
@@ -145,13 +212,14 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                         .addToBackStack(null)
                         .commit();
 
+
                 Toast.makeText(this, "Navigation", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.nav_ARNavigation:
 
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, new sampleMapActivity())
+                        .replace(R.id.fragment_container, new ARFragment())
                         .addToBackStack(null)
                         .commit();
                 Toast.makeText(this, "AR Navigation", Toast.LENGTH_SHORT).show();
@@ -179,6 +247,15 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         return true;
     }
 
+    public void replaceFragment(Fragment fragment){
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                fragment)
+                .addToBackStack(null)
+                .commit();
+
+    }
+
     @Override
     public void onBackPressed() {
 
@@ -199,9 +276,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
                 //additional code
             } else {
 
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, new DiscoverFragment())
-                                .commit();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new DiscoverFragment())
+                        .commit();
 
                 //getSupportFragmentManager().beginTransaction()
                 //.replace(R.id.fragment_container, new DiscoverFragment())
@@ -214,6 +291,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
 
     }
+
 
     @Override
     protected void onStart() {

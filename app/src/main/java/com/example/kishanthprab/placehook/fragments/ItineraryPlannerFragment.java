@@ -155,7 +155,7 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
         return true;
     }
 
-    //to return url
+    //to return url for placeType search
     private String getURL(double latitude, double longitude, int radius, String placeType) {
 
         StringBuilder googlePlacesURL = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
@@ -170,7 +170,7 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
         return googlePlacesURL.toString();
     }
 
-
+    //to return url for text search
     private String getURL(String query) {
 
         StringBuilder googlePlacesURL = new StringBuilder("https://maps.googleapis.com/maps/api/place/textsearch/json?");
@@ -201,7 +201,9 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
             String placeType = itineraryDetails.returnTypeFieldName(spinner_placeType.getSelectedItem().toString());
             if (placeType.equals("beach_side_places")) {
                 url = getURL("public beaches in " + itineraryDetails.getTripLocation().getName());
-            } else {
+            }else if(placeType.equals("tourist_places")) {
+                url = getURL("tourist places in " + itineraryDetails.getTripLocation().getName());
+            }else {
                 url = getURL(loc.latitude, loc.longitude, 3000, placeType);
             }
 

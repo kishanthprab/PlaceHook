@@ -27,7 +27,7 @@ public class FilterDialog extends DialogFragment implements View.OnClickListener
     private Callback callback;
 
     CheckBox checkBox_busStops, checkBox_restaurant, checkBox_atm,
-            checkBox_cafe, checkBox_shopping_mall, checkBox_spa;
+            checkBox_cafe, checkBox_shopping_mall, checkBox_food;
 
     SeekBar seekBar;
     TextView seekbarText;
@@ -64,7 +64,7 @@ public class FilterDialog extends DialogFragment implements View.OnClickListener
         checkBox_atm = (CheckBox) view.findViewById(R.id.atm);
         checkBox_cafe = (CheckBox) view.findViewById(R.id.cafe);
         checkBox_shopping_mall = (CheckBox) view.findViewById(R.id.shopping_mall);
-        checkBox_spa = (CheckBox) view.findViewById(R.id.spa);
+        checkBox_food = (CheckBox) view.findViewById(R.id.food);
 
         seekBar = (SeekBar)view.findViewById(R.id.seekbar);
         seekbarText = (TextView) view.findViewById(R.id.seekbar_progressText);
@@ -75,7 +75,7 @@ public class FilterDialog extends DialogFragment implements View.OnClickListener
         checkBoxList.add(checkBox_atm);
         checkBoxList.add(checkBox_cafe);
         checkBoxList.add(checkBox_shopping_mall);
-        checkBoxList.add(checkBox_spa);
+        checkBoxList.add(checkBox_food);
 
 
         seekBar.setMax(9500);
@@ -87,8 +87,8 @@ public class FilterDialog extends DialogFragment implements View.OnClickListener
                 double d = (progress+500)/1000.0 ;
                 String str = String.format("%1.2f", d);
                 d= Double.valueOf(d);
-
                 seekbarText.setText("Radius : " + d +" km");
+                
                 Toast.makeText(getActivity(), "seekbar progress: "+progress, Toast.LENGTH_SHORT).show();
             }
 

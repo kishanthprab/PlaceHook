@@ -45,7 +45,8 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("font/opensansregular.ttf")
+                .setDefaultFontPath("/Users/KishBelic/AndroidStudioProjects/PlaceHook/app/src/main/res/font/opensansregular.ttf")
+
                 .setFontAttrId(R.attr.fontPath)
                 .build());
 

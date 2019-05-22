@@ -5,10 +5,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.BaseColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetBehavior;
@@ -30,6 +33,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.kishanthprab.placehook.DB.DB_PlaceHook;
+import com.example.kishanthprab.placehook.DB.SQLiteDB_helper;
 import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.ItinerarysearchDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceDetailsModels.MyPlaceDetails;
@@ -44,6 +49,7 @@ import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
+import com.example.kishanthprab.placehook.Utility.FireDBUtil;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
 import com.example.kishanthprab.placehook.PlaceDetailsDialog;
@@ -102,7 +108,6 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
     ArrayList<ItinBottomSheetRecyclerListItem> directionDetailsList;
 
     ArrayList<ReviewRecyclerListItem> recyclerReviewsList;
-
 
 
     @Nullable
@@ -448,6 +453,8 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
             }
         }
 
+
+
         final DialogFragment dialog = PlaceDetailsDialog.newInstance(getActivity());
 
         //need to set callback
@@ -472,7 +479,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                         if (Functions_Itinerary.CurrentPlaceDetails != null) {
 
                             //get Reviews  from firebase
-                            retrieveReviewsFirebase(Functions_Itinerary.CurrentPlaceDetails.getResult().getPlace_id());
+                            appUserReviewstoRecycler(Functions_Itinerary.CurrentPlaceDetails.getResult().getPlace_id());
 
 
                             //get Reviews from google
@@ -523,25 +530,12 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                                 }
 
 
-
-                                final ReviewRecyclerListItem R_ListItem = new ReviewRecyclerListItem(
-                                        "Prabakaran Kishanth",
-                                        4.5,
-                                        "https://wingslax.com/wp-content/uploads/2017/12/no-image-available.png",
-                                        "1 month ago",
-                                        "superb"
-                                );
-                                R_ListItem.setReviewIconType("placeHook");
-
-                                userReviewsList.add(R_ListItem);
-
-
-
                                 reviewsList.addAll(recyclerReviewsList);
+                                reviewsList.addAll(userReviewsList);
 
                             } else {
-
-                                txt_numOfReviews.setText("No Reviews");
+                                txt_numOfReviews.setText("No Google Reviews");
+                                reviewsList.addAll(userReviewsList);
                             }
                         } else {
 
@@ -604,25 +598,19 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
     ArrayList<ReviewRecyclerListItem> userReviewsList;
 
-    //get reviews from firebase
-    private void retrieveReviewsFirebase(String placeId) {
+    //read stored reviews and put it to preferred place
+    private void appUserReviewstoRecycler(String placeId) {
 
         userReviewsList = new ArrayList<>();
+        userReviewsList.clear();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userReviewsRef = rootRef.child("Reviews").child(mAuth.getUid()).child(placeId);
 
-        userReviewsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        if (Functions_Itinerary.appUserReviews.size() != 0) {
 
-                if (dataSnapshot.exists()) {
+            for (UserReview review : Functions_Itinerary.appUserReviews) {
 
-                    UserReview review = dataSnapshot.getValue(UserReview.class);
-
-                    Log.d(TAG, "onDataChange: time " + calculateRelativeTime(Long.parseLong(review.getUnixTime())));
-
+                if (review.getPlaceId().equals(placeId)) {
                     ReviewRecyclerListItem reviewListItem = new ReviewRecyclerListItem(
                             review.getAuthorName(),
                             Double.parseDouble(review.getRating()),
@@ -631,25 +619,19 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
                             review.getReviewText()
                     );
 
-                    Log.d(TAG, "Review  placehook " + review.toString());
                     reviewListItem.setReviewIconType("placeHook");
 
-
-                    //recyclerReviewsList.add(reviewListItem);
                     userReviewsList.add(reviewListItem);
                 }
 
+                Log.d(TAG, "appUserReviewstoRecycler: " + review.toString());
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                Log.d(TAG, "onCancelled: error firebase" + databaseError.getDetails());
-            }
-        });
+        }
 
 
     }
+
 
     //to Calculate relative time from epochtime
     private String calculateRelativeTime(long time) {

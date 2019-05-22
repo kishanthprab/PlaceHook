@@ -191,7 +191,11 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
                 public void onSuccess(Void aVoid) {
                     alertDialog.dismiss();
 
+                    //read app reviews from firebase
+                    DashboardActivity.retrieveAllReviewsFirebase();
+
                     Toast.makeText(getActivity(), "Review saved successfully", Toast.LENGTH_SHORT).show();
+                    dismiss();
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override

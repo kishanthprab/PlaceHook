@@ -21,13 +21,15 @@ public class ItinerarysearchDetails {
         this.tripLocation = tripLocation;
     }
 
+
     public ArrayList<String> getPlaceTypeList() {
 
         placeTypeList = new ArrayList<String>();
         placeTypeList.add("Natural Feature");
-        placeTypeList.add("Tourist Places");
+        placeTypeList.add("Point of Interest");
         placeTypeList.add("Beach Side places");
         placeTypeList.add("Worship Places");
+        placeTypeList.add("Tourist Places");
 
         return placeTypeList;
     }
@@ -40,7 +42,7 @@ public class ItinerarysearchDetails {
             case "Natural Feature":
                 s = "natural_feature";
                 break;
-            case "Tourist Places":
+            case "Point of Interest":
                 s = "point_of_interest";
                 break;
             case "Beach Side places":
@@ -48,6 +50,9 @@ public class ItinerarysearchDetails {
                 break;
             case "Worship Places":
                 s = "place_of_worship";
+                break;
+            case "Tourist Places":
+                s = "tourist_places";
                 break;
 
         }

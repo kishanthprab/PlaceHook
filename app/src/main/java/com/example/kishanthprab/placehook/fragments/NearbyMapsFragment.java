@@ -1,16 +1,10 @@
 package com.example.kishanthprab.placehook.fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.location.LocationListener;
-import android.content.Context;
 import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 //import com.google.android.gms.location.LocationListener;
 import android.os.Handler;
@@ -34,9 +28,7 @@ import android.support.v7.widget.Toolbar;
 
 import com.example.kishanthprab.placehook.DashboardActivity;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
-import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 import com.example.kishanthprab.placehook.R;
-import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
 import com.example.kishanthprab.placehook.Utility.FilterDialog;
@@ -45,7 +37,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -55,14 +46,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -360,20 +345,90 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback, 
         int val = 0;
         switch (placeType) {
 
+            //travel
             case "bus_station":
-
+                val= R.drawable.marker_bus_stop;
+                break;
+            case "train_station":
                 break;
 
+
+                //food category
             case "restaurant":
+            case "food":
+                val = R.drawable.marker_food;
                 break;
 
             case "cafe":
-                val = R.drawable.marker_coffeeshop;
+                val = R.drawable.marker_cafe;
+                break;
+            case "bakery":
                 break;
 
+                //shop category
             case "shopping_mall":
                 val = R.drawable.marker_shopping;
                 break;
+            case "clothing_store":
+
+                break;
+            case "book_store":
+
+                break;
+            case "jewelry_store":
+
+                break;
+            case "liquor_store":
+                break;
+
+            case "electronics_store":
+
+                break;
+            case "supermarket":
+
+                break;
+            case "hardware_store":
+
+                break;
+            case "furniture_store":
+
+
+                break;
+
+
+                //general services
+            case "hospital":
+                val = R.drawable.marker_hospital;
+                break;
+            case "pharmacy":
+                break;
+            case "fire_station":
+                val= R.drawable.marker_fire_station;
+                break;
+            case "police":
+                break;
+            case "bank":
+                val = R.drawable.marker_bank;
+                break;
+            case "embassy":
+                break;
+            case "post_office":
+                break;
+            case "school":
+                val = R.drawable.marker_school;
+                break;
+
+
+                //entertainment
+            case "movie_theater":
+                val = R.drawable.marker_movie;
+                break;
+            case "museum":
+                break;
+            case "night_club":
+                break;
+
+
 
         }
 
