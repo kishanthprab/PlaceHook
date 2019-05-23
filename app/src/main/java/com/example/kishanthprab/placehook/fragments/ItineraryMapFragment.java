@@ -590,7 +590,7 @@ public class ItineraryMapFragment extends Fragment implements OnMapReadyCallback
 
         dialog.show(getChildFragmentManager(), "PlaceDialog");
 
-        Toast.makeText(getActivity(), "marker info " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getActivity(), "marker info " + marker.getTitle(), Toast.LENGTH_SHORT).show();
 
 
     }

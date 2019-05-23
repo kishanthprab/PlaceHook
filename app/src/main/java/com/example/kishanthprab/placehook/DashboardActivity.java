@@ -175,6 +175,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     }
 
+    //switch fragments according to the navigation drawer selection
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
         switch (menuItem.getItemId()) {
@@ -233,7 +234,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 */
 
             case R.id.nav_logout:
-                Toast.makeText(this, "Sign out", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Signed out", Toast.LENGTH_SHORT).show();
                 if (FireAuthUtil.getmUser() != null) {
                     FirebaseAuth.getInstance().signOut();
                     startActivity(new Intent(getApplicationContext(), WelcomeActivity.class));

@@ -141,8 +141,8 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user = FireAuth.getCurrentUser();
 
                             alertDialog.dismiss();
-                            Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_SHORT).show();
-                            Snackbar.make(LoginRootLayout, "Login successful", Snackbar.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Login successful", Toast.LENGTH_LONG).show();
+                            Snackbar.make(LoginRootLayout, "Login successful", Snackbar.LENGTH_LONG).show();
 
                             startActivity(new Intent(getApplicationContext(), DashboardActivity.class));
 
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                             alertDialog.dismiss();
                             Log.d(TAG, "signInWithEmail:failure", task.getException());
                            // Toast.makeText(getApplicationContext(), "Login Failed", Toast.LENGTH_SHORT).show();
-                            Snackbar.make(LoginRootLayout, "Failed " + task.getException().getLocalizedMessage(), Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(LoginRootLayout, "Failed : " + task.getException().getLocalizedMessage(), Snackbar.LENGTH_LONG).show();
 
                         }
 

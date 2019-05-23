@@ -27,6 +27,7 @@ import com.example.kishanthprab.placehook.Recycler.ReviewRecyclerListItem;
 import com.example.kishanthprab.placehook.Utility.FireDBUtil;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
+import com.example.kishanthprab.placehook.Utility.KeyboardUtils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -117,6 +118,7 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
                 break;
 
             case R.id.reviewDialog_done:
+                KeyboardUtils.hideKeyboard(getActivity());
                 alertDialog.show();
                 storeReviewtoFirebase();
 
@@ -133,7 +135,7 @@ public class ReviewDialog extends DialogFragment implements View.OnClickListener
 
             case R.id.reviewDialog_spinner_rating:
 
-                Toast.makeText(getActivity(), "Item clicked :" + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "Item clicked :" + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onItemSelected: " + parent.getItemAtPosition(position));
                 break;
 

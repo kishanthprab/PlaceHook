@@ -19,10 +19,16 @@ import com.example.kishanthprab.placehook.DataObjects.User;
 import com.example.kishanthprab.placehook.Utility.FireAuthUtil;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.KeyboardUtils;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthEmailException;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,7 +38,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.rengwuxian.materialedittext.MaterialAutoCompleteTextView;
 import com.rengwuxian.materialedittext.MaterialEditText;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.security.Key;
+import java.util.regex.Pattern;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -112,6 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+    //validate signup
     private boolean validateSignup() {
 
         KeyboardUtils.hideKeyboard(RegisterActivity.this);
@@ -119,6 +129,11 @@ public class RegisterActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(edtEmail.getText().toString())) {
 
             Snackbar.make(RegrootLayout, "Please enter email address", Snackbar.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!isValid(edtEmail.getText().toString())){
+
+            Snackbar.make(RegrootLayout, "Email address is not valid", Snackbar.LENGTH_SHORT).show();
             return false;
         }
 
@@ -149,13 +164,26 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (edtPassword.getText().toString().length() < 6) {
 
-            Snackbar.make(RegrootLayout, "Password is too short", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(RegrootLayout, "Password should be atleast 6 characters", Snackbar.LENGTH_SHORT).show();
             return false;
         }
         return true;
 
     }
 
+    //check email
+    public static boolean isValid(String email)
+    {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+                "[a-zA-Z0-9_+&*-]+)*@" +
+                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                "A-Z]{2,7}$";
+
+        Pattern pat = Pattern.compile(emailRegex);
+        if (email == null)
+            return false;
+        return pat.matcher(email).matches();
+    }
 
     private void CreateUser() {
 
@@ -168,8 +196,11 @@ public class RegisterActivity extends AppCompatActivity {
 
                         User userObj = new User(
                                 edtEmail.getText().toString(),
-                                edtPassword.getText().toString(),
-                                edtName.getText().toString());
+                                passwordEncryption(edtPassword.getText().toString()),
+                                edtName.getText().toString()
+
+                        );
+
 
                         UsersRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(userObj).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -195,12 +226,47 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+
+
+                    }
+                }).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+
+                if (!task.isSuccessful())
+                {
+                    try
+                    {
+                        throw task.getException();
+                    }
+                    catch (FirebaseAuthUserCollisionException existEmail)
+                    {
+                        alertDialog.dismiss();
+                        Log.d(TAG, "sign up failed" + existEmail);
+                        Snackbar.make(RegrootLayout, "Failed : this account already exists", Snackbar.LENGTH_LONG).show();
+                    }
+                    catch (Exception e)
+                    {
                         alertDialog.dismiss();
                         Log.d(TAG, "sign up failed" + e);
-                        Snackbar.make(RegrootLayout, "Failed " + e, Snackbar.LENGTH_SHORT).show();
-                    }
-                });
+                        Snackbar.make(RegrootLayout, "Failed : " + e, Snackbar.LENGTH_LONG).show();
 
+                    }
+                }
+            }
+        });
+
+    }
+
+
+    //encode string
+    private String passwordEncryption(String str){
+
+        // Encode data using BASE64
+        byte[] bytesEncoded = Base64.encodeBase64(str.getBytes());
+        System.out.println("encoded value is " + new String(bytesEncoded));
+
+        return new String(bytesEncoded);
     }
 
     @Override

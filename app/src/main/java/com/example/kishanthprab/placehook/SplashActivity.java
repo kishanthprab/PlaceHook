@@ -43,6 +43,10 @@ public class SplashActivity extends AppCompatActivity {
         splashtxt.setAlpha(0f);
         splashtxt.animate().alpha(1f).setDuration(3500).setStartDelay(1500);
 
+        TextView splashtxt1 = (TextView) findViewById(R.id.textView1);
+        splashtxt1.setAlpha(0f);
+        splashtxt1.animate().alpha(1f).setDuration(3500).setStartDelay(1000);
+
 
         ImageView splashimgView = (ImageView) findViewById(R.id.splashImgv);
         splashimgView.animate().alpha(0f).setDuration(2000).setStartDelay(1000);

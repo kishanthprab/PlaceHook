@@ -89,7 +89,7 @@ public class FilterDialog extends DialogFragment implements View.OnClickListener
                 d= Double.valueOf(d);
                 seekbarText.setText("Radius : " + d +" km");
                 
-                Toast.makeText(getActivity(), "seekbar progress: "+progress, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "seekbar progress: "+progress, Toast.LENGTH_SHORT).show();
             }
 
             @Override

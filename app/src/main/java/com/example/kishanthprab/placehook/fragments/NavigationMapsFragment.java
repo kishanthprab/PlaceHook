@@ -586,7 +586,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "textview clicked", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "textview clicked", Toast.LENGTH_SHORT).show();
 
                 // Set the fields to specify which types of place data to
                 // return after the user has made a selection.
@@ -666,7 +666,7 @@ public class NavigationMapsFragment extends Fragment implements OnMapReadyCallba
 
                     } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
 
-                        Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "onrequest permision " + "Permission denied");
                     }
 

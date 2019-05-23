@@ -4,6 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/arFragment_relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.ARFragment" >
@@ -77,15 +78,17 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="60dp"
             android:layout_gravity="center">
 
             <android.support.design.button.MaterialButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:id="@+id/arFragment_btn_startAR"
-                android:text="Start Augmented Reality"
-                />
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:textSize="16sp"
+                android:fontFamily="@font/opensansregular"
+                android:text="Start Augmented Reality View"
+                map:cornerRadius="50dp" />
 
         </LinearLayout>
 

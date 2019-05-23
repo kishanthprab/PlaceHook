@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -26,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -103,7 +105,7 @@ public class ARFragment extends Fragment {
 
     MaterialButton arFragment_btn;
 
-
+    RelativeLayout arFragment_relativeLayout;
 
 
     @Nullable
@@ -125,7 +127,7 @@ public class ARFragment extends Fragment {
         //init toolbar
         arFragment_toolbar = (Toolbar) view.findViewById(R.id.arFragment_toolbar);
         arFragment_toolbar_title = (TextView) view.findViewById(R.id.arFragment_toolbar_title);
-
+        arFragment_relativeLayout = (RelativeLayout) view.findViewById(R.id.arFragment_relativeLayout);
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(arFragment_toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -179,6 +181,7 @@ public class ARFragment extends Fragment {
     private void writeDataToFirebase(Place place){
 
 
+
         mAuth = FirebaseAuth.getInstance();
         ARPlaceInfoRef = FirebaseDatabase.getInstance().getReference().child("ARPlace");
 
@@ -193,13 +196,18 @@ public class ARFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                if (arFragment_search.getText().equals("")||arFragment_search.getText().equals("Enter location")){
+                    //Toast.makeText(getActivity(), "Pick a place", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(arFragment_relativeLayout,"Pick a place",Snackbar.LENGTH_LONG).show();
+                    return;
+                }
 
                 ARPlaceInfoRef.setValue(values).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
 
-                        Toast.makeText(getActivity(), "Values stored Successfully", Toast.LENGTH_SHORT).show();
-
+                       // Toast.makeText(getActivity(), "Values stored Successfully", Toast.LENGTH_SHORT).show();
+                        //Snackbar.make(arFragment_relativeLayout,"Values stored Successfully",Snackbar.LENGTH_LONG).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -221,7 +229,7 @@ public class ARFragment extends Fragment {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "textview clicked", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getActivity(), "textview clicked", Toast.LENGTH_SHORT).show();
 
                 // Set the fields to specify which types of place data to
                 // return after the user has made a selection.

@@ -11,7 +11,7 @@
         android:id="@+id/splashImgv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
         android:background="@color/colorPrimaryDark" />
@@ -25,20 +25,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.61"
-        app:svg="@raw/globe" />
+        app:svg="@raw/airline" />
 
-    <TextView
-        android:id="@+id/textView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="63dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginBottom="10dp"
-        android:gravity="top|center"
-        android:text="PLACE HOOK"
-        android:textColor="@color/colorPrimary"
-        android:textSize="50sp"
+        android:gravity="center"
         app:layout_constraintBottom_toTopOf="@+id/pathview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="63dp"
+            android:gravity="top|center"
+            android:text="PLACE "
+            android:textColor="@color/colorAccent"
+            android:textSize="50sp" />
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="63dp"
+            android:gravity="top|center"
+            android:text="HOOK"
+            android:textColor="@color/colorPrimary"
+            android:textSize="50sp" />
+    </LinearLayout>
+
 
 </android.support.constraint.ConstraintLayout>

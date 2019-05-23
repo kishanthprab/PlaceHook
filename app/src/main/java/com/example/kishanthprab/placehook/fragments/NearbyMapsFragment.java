@@ -197,7 +197,7 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback, 
 
                     LastLocation = location;
                     final LatLng userloc = new LatLng(LastLocation.getLatitude(), LastLocation.getLongitude());
-                    userCurrentLocation = mMap.addMarker(new MarkerOptions().position(userloc).title("You are here!").icon(BitmapDescriptorFactory.fromResource(R.drawable.user)));
+                    userCurrentLocation = mMap.addMarker(new MarkerOptions().position(userloc).title("You are here!").icon(BitmapDescriptorFactory.fromResource(R.drawable.userlocation)));
 
                     // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userloc,21));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userloc, 17));
@@ -464,7 +464,7 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback, 
 
                     } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
 
-                        Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(getActivity(), "Permission Denied", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "onrequest permision " + "Permission denied");
                     }
 
@@ -486,7 +486,7 @@ public class NearbyMapsFragment extends Fragment implements OnMapReadyCallback, 
 
                 showFilterMenu();
 
-                Toast.makeText(getActivity(), "Filter menu clicked", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getActivity(), "Filter menu clicked", Toast.LENGTH_SHORT).show();
                 break;
 
         }

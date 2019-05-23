@@ -68,8 +68,10 @@ public class WelcomeActivity extends AppCompatActivity {
         txtV.setTranslationY(-500f);
         txtV.animate().translationYBy(500f).setDuration(1000);
 
-        logo.setTranslationY(1500f);
-        logo.animate().translationYBy(-1500f).setDuration(1000).setStartDelay(100);
+        logo.setTranslationY(2000f);
+        logo.animate().translationYBy(-2000f).setDuration(1000).setStartDelay(100);
+
+        logo.animate().rotationYBy(360f).setDuration(1000).setStartDelay(1100);
 
         signin.setTranslationX(-800);
         signin.animate().translationXBy(800).setDuration(500).setStartDelay(900);

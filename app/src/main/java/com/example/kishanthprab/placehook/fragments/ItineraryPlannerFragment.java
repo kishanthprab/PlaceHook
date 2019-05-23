@@ -2,12 +2,10 @@ package com.example.kishanthprab.placehook.fragments;
 
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.button.MaterialButton;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +19,6 @@ import android.widget.ArrayAdapter;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.kishanthprab.placehook.DashboardActivity;
@@ -29,12 +26,10 @@ import com.example.kishanthprab.placehook.DataObjects.ItinerarysearchDetails;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.MyPlaces;
 import com.example.kishanthprab.placehook.DataObjects.PlaceModels.Results;
 import com.example.kishanthprab.placehook.R;
-import com.example.kishanthprab.placehook.Recycler.RecyclerListItem;
 import com.example.kishanthprab.placehook.Remote.CommonGoogle;
 import com.example.kishanthprab.placehook.Remote.GoogleAPIService;
 import com.example.kishanthprab.placehook.Utility.Functions;
 import com.example.kishanthprab.placehook.Utility.Functions_Itinerary;
-import com.example.kishanthprab.placehook.Utility.TimePickerDialogFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -44,12 +39,12 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import mobi.upod.timedurationpicker.TimeDurationPickerDialogFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -318,13 +313,13 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
             case R.id.spinner_ip_placeType:
 
 
-                Toast.makeText(getContext(), "spinner item Clicked : " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getContext(), "spinner item Clicked : " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
 
                 break;
 
             case R.id.spinner_ip_NoOfPlaces:
 
-                Toast.makeText(getContext(), "spinner item Clicked : " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getContext(), "spinner item Clicked : " + parent.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
 
                 break;
 
@@ -340,11 +335,11 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
 
             case R.id.spinner_ip_NoOfPlaces:
 
-                Toast.makeText(getActivity(), "No item selected no of places", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "No item selected no of places", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.spinner_ip_placeType:
-                Toast.makeText(getActivity(), "No item selected place type", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getActivity(), "No item selected place type", Toast.LENGTH_SHORT).show();
                 break;
         }
 
@@ -365,8 +360,7 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
                     itineraryDetails.setTripLocation(place);
                     txt_tripLocation.setText(place.getName());
 
-                    //search places function
-                    //SearchItineraryPlaces("natural_feature");
+
                     SearchItineraryPlaces();
 
 
@@ -382,6 +376,7 @@ public class ItineraryPlannerFragment extends Fragment implements View.OnClickLi
         }
 
     }
+
 
 
     private void createLocationSearchIntent(int requestCode) {

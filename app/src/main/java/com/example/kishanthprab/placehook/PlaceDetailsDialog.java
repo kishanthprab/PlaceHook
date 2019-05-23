@@ -144,7 +144,7 @@ public class PlaceDetailsDialog extends DialogFragment implements View.OnClickLi
 
                 //dismiss();
 
-                Toast.makeText(getActivity(), "button clicked", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "button clicked", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onClick: review button clicked" );
 
                 createReviewDialog();
